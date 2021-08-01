@@ -11,7 +11,6 @@ find_package(Tclsh)
 find_package(TclStub)
 find_package(OpenSSL)
 find_package(LibWebSockets)
-message(STATUS "lalala ${LIBWEBSOCKETS_INCLUDE_DIR}")
 
 #
 # Common defines for all project targets
@@ -24,19 +23,22 @@ set(TCLWEBSOCKETS_DEFINES -DUSE_TCL_STUBS=1
                           -DPACKAGE_NAME="websockets"
                           -DPACKAGE_VERSION="${CMAKE_PROJECT_VERSION}")
 
-IF (WIN32)
+IF (MSVC)
 	list(APPEND TCLGRAPHS_DEFINES -D_CRT_SECURE_NO_WARNINGS=1)
 ENDIF()
 
 #
 # graphs Tcl extension
 #
-set(WEBSOCKETS_SOURCES generic/websockets.c)
+set(WEBSOCKETS_SOURCES generic/websockets.c generic/lws.c)
 set(WEBSOCKETS_HEADERS generic/websockets.h)
 
 add_library(websockets SHARED ${WEBSOCKETS_SOURCES} ${WEBSOCKETS_HEADERS}  pkgIndex.tcl.in)
 target_compile_definitions(websockets PRIVATE ${TCLWEBSOCKETS_DEFINES} -DBUILD_websockets=1 -DMODULE_SCOPE=extern)
-target_link_libraries(websockets ${TCL_STUB_LIBRARY})
+target_link_libraries(websockets ${TCL_STUB_LIBRARY} ${LIBWEBSOCKETS_STATIC_LIBRARIES} ${OPENSSL_LIBRARIES} ${LIBWEBSOCKETS_DEP_LIBS})
+if (MSVC)
+    target_link_options(websockets PRIVATE /NODEFAULTLIB:msvcrtd)
+endif()
 set_target_properties(websockets PROPERTIES PREFIX "")
 
 configure_file(pkgIndex.tcl.in pkgIndex.tcl)

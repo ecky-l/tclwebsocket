@@ -42,6 +42,12 @@ IF ( LIBWEBSOCKETS_INCLUDE_DIR )
     ENDIF ( LIBWEBSOCKETS_LIBRARIES )
 ENDIF ( LIBWEBSOCKETS_INCLUDE_DIR )
 
+if(WIN32)
+    # These are additional libs that lws wants your app to also link to
+    foreach(item "ws2_32.lib;userenv.lib;psapi.lib;iphlpapi.lib;crypt32.lib")
+        list(APPEND LIBWEBSOCKETS_DEP_LIBS ${item})
+    endforeach()
+endif()
 
 IF ( LIBWEBSOCKETS_FOUND )
     MARK_AS_ADVANCED(
@@ -49,6 +55,7 @@ IF ( LIBWEBSOCKETS_FOUND )
         LIBWEBSOCKETS_INCLUDE_DIR
         LIBWEBSOCKETS_LIBRARIES
 	LIBWEBSOCKETS_STATIC_LIBRARIES
+	LIBWEBSOCKETS_DEP_LIBS
     )
 ENDIF ( )
 
