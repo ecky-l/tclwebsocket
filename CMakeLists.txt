@@ -20,27 +20,23 @@ include_directories(${TCL_INCLUDE_PATH}
                     ${OPENSSL_INCLUDE_DIR}
 )
 set(TCLWEBSOCKETS_DEFINES -DUSE_TCL_STUBS=1
-                          -DPACKAGE_NAME="websockets"
+                          -DPACKAGE_NAME="${CMAKE_PROJECT_NAME}"
                           -DPACKAGE_VERSION="${CMAKE_PROJECT_VERSION}")
 
-IF (MSVC)
-	list(APPEND TCLGRAPHS_DEFINES -D_CRT_SECURE_NO_WARNINGS=1)
-ENDIF()
+#IF (MSVC)
+#	list(APPEND TCLGRAPHS_DEFINES -D_CRT_SECURE_NO_WARNINGS=1)
+#ENDIF()
 
 #
 # graphs Tcl extension
 #
-set(WEBSOCKETS_SOURCES generic/websockets.c generic/lws.c)
-set(WEBSOCKETS_HEADERS generic/websockets.h)
+set(WEBSOCKETS_SOURCES generic/tclwebsockets.c generic/lws.c)
+set(WEBSOCKETS_HEADERS generic/tclwebsockets.h)
 
-add_library(websockets SHARED ${WEBSOCKETS_SOURCES} ${WEBSOCKETS_HEADERS}  pkgIndex.tcl.in)
-target_compile_definitions(websockets PRIVATE ${TCLWEBSOCKETS_DEFINES} -DBUILD_websockets=1 -DMODULE_SCOPE=extern)
-target_link_libraries(websockets ${TCL_STUB_LIBRARY} ${LIBWEBSOCKETS_STATIC_LIBRARIES} ${OPENSSL_LIBRARIES} ${LIBWEBSOCKETS_DEP_LIBS})
-if (MSVC)
-    target_link_options(websockets PRIVATE /NODEFAULTLIB:msvcrtd)
-endif()
-set_target_properties(websockets PROPERTIES PREFIX "")
-
+add_library(${CMAKE_PROJECT_NAME} SHARED ${WEBSOCKETS_SOURCES} ${WEBSOCKETS_HEADERS}  pkgIndex.tcl.in)
+target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE ${TCLWEBSOCKETS_DEFINES} -DBUILD_tclwebsockets=1 -DMODULE_SCOPE=extern)
+target_link_libraries(${CMAKE_PROJECT_NAME} ${TCL_STUB_LIBRARY} ${LIBWEBSOCKETS_LIBRARIES} ${LIBWEBSOCKETS_DEP_LIBS})
+set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
 configure_file(pkgIndex.tcl.in pkgIndex.tcl)
 
 #
@@ -51,13 +47,13 @@ set(CMAKE_INSTALL_PREFIX "$ENV{HOME}/.local/tcl/lib")
 file(TO_CMAKE_PATH ${CMAKE_INSTALL_PREFIX} CMAKE_INSTALL_PREFIX)
 message(STATUS "install prefix: ${CMAKE_INSTALL_PREFIX}")
 install(
-    TARGETS websockets
-    RUNTIME DESTINATION "websockets${CMAKE_PROJECT_VERSION}"
-    LIBRARY DESTINATION "websockets${CMAKE_PROJECT_VERSION}"
+    TARGETS ${CMAKE_PROJECT_NAME}
+    RUNTIME DESTINATION "${CMAKE_PROJECT_NAME}${CMAKE_PROJECT_VERSION}"
+    LIBRARY DESTINATION "${CMAKE_PROJECT_NAME}${CMAKE_PROJECT_VERSION}"
 )
 install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/pkgIndex.tcl"
-    DESTINATION "graphs${CMAKE_PROJECT_VERSION}"
+    DESTINATION "${CMAKE_PROJECT_NAME}${CMAKE_PROJECT_VERSION}"
 )
 
 #
@@ -69,7 +65,7 @@ ELSE()
     set(CPACK_GENERATOR "TGZ")
 ENDIF()
 
-set(CPACK_PACKAGE_NAME "websockets")
+set(CPACK_PACKAGE_NAME "${CMAKE_PROJECT_NAME}")
 set(CPACK_PACKAGE_VENDOR "EL")
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
 #set(CPACK_PACKAGE_VERSION_MAJOR 0)

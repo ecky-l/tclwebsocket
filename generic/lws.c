@@ -1,4 +1,4 @@
-#include "websockets.h"
+#include "tclwebsockets.h"
 
 static int
 callback_minimal(struct lws* wsi, enum lws_callback_reasons reason, void* user, void* in, size_t len);
@@ -14,7 +14,7 @@ callback_minimal(struct lws* wsi, enum lws_callback_reasons reason, void* user, 
 	return 0;
 }
 
-struct lws_context* Lws_GetClientContext(char* host, int port, char* path, int ssl)
+struct lws_context* Lws_GetClientContext()
 {
 	struct lws_context* context = NULL;
 	struct lws_context_creation_info info;
@@ -23,7 +23,26 @@ struct lws_context* Lws_GetClientContext(char* host, int port, char* path, int s
 	info.options = LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT;
 	info.port = CONTEXT_PORT_NO_LISTEN;
 	info.protocols = _protocols;
-	
 	context = lws_create_context(&info);
 	return context;
+}
+
+void Lws_DestroyContext(struct lws_context* context)
+{
+	lws_context_destroy(context);
+}
+
+struct lws_client_connect_info Lws_GetClientConnectInfo(struct lws_context* context, char* host, int port, char* path, int ssl)
+{
+	struct lws_client_connect_info info;
+	info.context = context;
+	info.port = port;
+	info.address = host;
+	info.path = path;
+	info.host = info.address;
+	info.origin = info.address;
+	info.ssl_connection = ssl ? LCCSCF_USE_SSL : 0;
+	info.protocol = _protocols[0].name;
+	info.pwsi = NULL;
+	return info;
 }
