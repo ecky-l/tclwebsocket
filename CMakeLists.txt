@@ -30,8 +30,13 @@ set(TCLWEBSOCKETS_DEFINES -DUSE_TCL_STUBS=1
 #
 # graphs Tcl extension
 #
-set(WEBSOCKETS_SOURCES generic/tclwebsockets.c generic/lws.c)
-set(WEBSOCKETS_HEADERS generic/tclwebsockets.h)
+set(WEBSOCKETS_SOURCES generic/tclwebsockets.c
+                       generic/websocketschannel.c
+                       generic/lws.c
+)
+set(WEBSOCKETS_HEADERS generic/tclwebsockets.h
+                       generic/websocketschannel.h
+)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${WEBSOCKETS_SOURCES} ${WEBSOCKETS_HEADERS}  pkgIndex.tcl.in)
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE ${TCLWEBSOCKETS_DEFINES} -DBUILD_tclwebsockets=1 -DMODULE_SCOPE=extern)

@@ -1,5 +1,5 @@
 #include "tclwebsockets.h"
-
+#include "websocketschannel.h"
 
 static int
 WebsocketCmd(ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* const objv[])
@@ -90,13 +90,19 @@ WebsocketCmd(ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* const
         Tcl_HashEntry* entry = Tcl_CreateHashEntry(&statePtr->tclWebsockets, Tcl_DStringValue(websocketPtr->handleName), &isNew);
         Tcl_SetHashValue(entry, websocketPtr);
     }
-
-    Tcl_SetObjResult(interp, Tcl_NewStringObj(Tcl_DStringValue(websocketPtr->handleName), -1));
+    /*
+    * call to lws_service() once should trigger the protocol callback when interesting things happen. The callback reason determines what happened
+    * Should react on the things in
+    */
+    //lws_service(websocketPtr->lwsContext, 10);
+    websocketPtr->channel = Tcl_CreateChannel(&tclWebsocketsChannelType, Tcl_DStringValue(websocketPtr->handleName), websocketPtr, TCL_READABLE | TCL_WRITABLE);
+    Tcl_RegisterChannel(interp, websocketPtr->channel);
+    Tcl_SetObjResult(interp, Tcl_NewStringObj(Tcl_GetChannelName(websocketPtr->channel), -1));
     return TCL_OK;
 }
 
-static void
-WebsocketDestroy(TclWebsocket* websocketPtr)
+void
+TclWebsocket_WebsocketDestroy(TclWebsocket* websocketPtr)
 {
 
     if (websocketPtr->lwsContext != NULL) {
@@ -110,7 +116,6 @@ WebsocketDestroy(TclWebsocket* websocketPtr)
         }
         websocketPtr->statePtr = NULL;
     }
-
     Tcl_DStringFree(websocketPtr->handleName);
     ckfree(websocketPtr->handleName);
     ckfree(websocketPtr);
@@ -127,12 +132,12 @@ Websockets_CleanupCmd(ClientData data)
     while (entry != NULL) {
         /* delete the websocket handle */
         TclWebsocket* websocketPtr = (TclWebsocket*)Tcl_GetHashValue(entry);
-        WebsocketDestroy(websocketPtr);
+        TclWebsocket_WebsocketDestroy(websocketPtr);
         entry = Tcl_FirstHashEntry(&wsState->tclWebsockets, &search);
     }
 
     Tcl_DeleteHashTable(&wsState->tclWebsockets);
-    Tcl_Free(wsState);
+    Tcl_Free((ClientData)wsState);
     wsState = NULL;
 }
 
