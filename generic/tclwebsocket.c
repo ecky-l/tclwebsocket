@@ -1,4 +1,4 @@
-#include "tclwebsockets.h"
+#include "tclwebsocket.h"
 #include "websocketschannel.h"
 
 static int
@@ -149,8 +149,8 @@ WebSocketLogNothingFcn(int logLevel, const char* message)
 #ifdef __cplusplus
 extern "C" {
 #endif  /* __cplusplus */
-TCLWEBSOCKETS_EXTERN
-int Tclwebsockets_Init(Tcl_Interp* interp)
+TCLWEBSOCKET_EXTERN
+int Tclwebsocket_Init(Tcl_Interp* interp)
 {
     TclWebsocketsState* tclWebSocketsState = NULL;
 #ifdef USE_TCL_STUBS

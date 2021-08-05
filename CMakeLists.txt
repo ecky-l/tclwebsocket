@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 # set the project name
-project(tclwebsockets VERSION 0.0.1)
+project(tclwebsocket VERSION 0.0.1)
 
 find_package(TCL)
 find_package(Tclsh)
@@ -19,7 +19,7 @@ include_directories(${TCL_INCLUDE_PATH}
                     ${LIBWEBSOCKETS_INCLUDE_DIR}
                     ${OPENSSL_INCLUDE_DIR}
 )
-set(TCLWEBSOCKETS_DEFINES -DUSE_TCL_STUBS=1
+set(TCLWEBSOCKET_DEFINES -DUSE_TCL_STUBS=1
                           -DPACKAGE_NAME="${CMAKE_PROJECT_NAME}"
                           -DPACKAGE_VERSION="${CMAKE_PROJECT_VERSION}")
 
@@ -30,16 +30,16 @@ set(TCLWEBSOCKETS_DEFINES -DUSE_TCL_STUBS=1
 #
 # graphs Tcl extension
 #
-set(WEBSOCKETS_SOURCES generic/tclwebsockets.c
+set(TCLWEBSOCKET_SOURCES generic/tclwebsocket.c
                        generic/websocketschannel.c
                        generic/lws.c
 )
-set(WEBSOCKETS_HEADERS generic/tclwebsockets.h
+set(TCLWEBSOCKET_HEADERS generic/tclwebsocket.h
                        generic/websocketschannel.h
 )
 
-add_library(${CMAKE_PROJECT_NAME} SHARED ${WEBSOCKETS_SOURCES} ${WEBSOCKETS_HEADERS}  pkgIndex.tcl.in)
-target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE ${TCLWEBSOCKETS_DEFINES} -DBUILD_tclwebsockets=1 -DMODULE_SCOPE=extern)
+add_library(${CMAKE_PROJECT_NAME} SHARED ${TCLWEBSOCKET_SOURCES} ${TCLWEBSOCKET_HEADERS}  pkgIndex.tcl.in)
+target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE ${TCLWEBSOCKET_DEFINES} -DBUILD_tclwebsocket=1 -DMODULE_SCOPE=extern)
 target_link_libraries(${CMAKE_PROJECT_NAME} ${TCL_STUB_LIBRARY} ${LIBWEBSOCKETS_LIBRARIES} ${LIBWEBSOCKETS_DEP_LIBS})
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
 configure_file(pkgIndex.tcl.in pkgIndex.tcl)
@@ -73,8 +73,5 @@ ENDIF()
 set(CPACK_PACKAGE_NAME "${CMAKE_PROJECT_NAME}")
 set(CPACK_PACKAGE_VENDOR "EL")
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
-#set(CPACK_PACKAGE_VERSION_MAJOR 0)
-#set(CPACK_PACKAGE_VERSION_MINOR 0)
-#set(CPACK_PACKAGE_VERSION_PATCH 1)
 include(CPack)
 

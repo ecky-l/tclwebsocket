@@ -4,15 +4,15 @@
 #include <libwebsockets.h>
 #include <tcl.h>
 
-#if defined(BUILD_tclwebsockets) && !defined(STATIC_BUILD)
-#   define TCLWEBSOCKETS_EXTERN extern DLLEXPORT
+#if defined(BUILD_tclwebsocket) && !defined(STATIC_BUILD)
+#   define TCLWEBSOCKET_EXTERN extern DLLEXPORT
 #else
-#   define TCLWEBSOCKETS_EXTERN extern
+#   define TCLWEBSOCKET_EXTERN extern
 #endif
 
-TCLWEBSOCKETS_EXTERN int Tclwebsockets_Init(Tcl_Interp* interp);
+TCLWEBSOCKET_EXTERN int Tclwebsocket_Init(Tcl_Interp* interp);
 
-typedef struct _tclWebsocketsState {
+typedef struct _tclWebsocketState {
 	Tcl_HashTable tclWebsockets;
 	int socketUid;
 } TclWebsocketsState;

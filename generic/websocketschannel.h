@@ -1,7 +1,7 @@
 #ifndef WEBSOCKETSCHANNEL_H
 #define WEBSOCKETSCHANNEL_H
 
-#include "tclwebsockets.h"
+#include "tclwebsocket.h"
 
 int WebsocketCloseProc(ClientData instanceData, Tcl_Interp* interp);
 int WebsocketInputProc(ClientData instanceData, char* buf, int toRead, int* errorCodePtr);

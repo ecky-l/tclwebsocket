@@ -1,4 +1,4 @@
-#include "tclwebsockets.h"
+#include "tclwebsocket.h"
 
 static int
 callback_minimal(struct lws* wsi, enum lws_callback_reasons reason, void* user, void* in, size_t len);
