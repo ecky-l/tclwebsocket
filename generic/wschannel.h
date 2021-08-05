@@ -13,7 +13,7 @@ void WebsocketWatchProc(ClientData instanceData, int mask);
 int WebsocketBlockModeProc(ClientData instanceData, int mode);
 int WebsocketFlushProc(ClientData instanceData);
 
-static Tcl_ChannelType tclWebsocketsChannelType = {
+static Tcl_ChannelType WSChannelType = {
     .typeName = "websocket",
     .version = TCL_CHANNEL_VERSION_5,
     .closeProc = WebsocketCloseProc,

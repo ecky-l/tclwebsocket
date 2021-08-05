@@ -22,7 +22,7 @@ typedef struct _tclWebsocket {
 	TclWebsocketsState* statePtr;
 	struct lws_context* lwsContext;
 	struct lws_client_connect_info lwsClientConnectInfo;
-	Tcl_Channel channel;
+	Tcl_Channel wsChannel;
 } TclWebsocket;
 
 void TclWebsocket_WebsocketDestroy(TclWebsocket* websocketPtr);

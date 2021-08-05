@@ -31,11 +31,11 @@ set(TCLWEBSOCKET_DEFINES -DUSE_TCL_STUBS=1
 # graphs Tcl extension
 #
 set(TCLWEBSOCKET_SOURCES generic/tclwebsocket.c
-                       generic/websocketschannel.c
+                       generic/wschannel.c
                        generic/lws.c
 )
 set(TCLWEBSOCKET_HEADERS generic/tclwebsocket.h
-                       generic/websocketschannel.h
+                       generic/wschannel.h
 )
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${TCLWEBSOCKET_SOURCES} ${TCLWEBSOCKET_HEADERS}  pkgIndex.tcl.in)

@@ -1,5 +1,5 @@
 #include "tclwebsocket.h"
-#include "websocketschannel.h"
+#include "wschannel.h"
 
 static int
 WebsocketCmd(ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* const objv[])
@@ -95,9 +95,9 @@ WebsocketCmd(ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* const
     * Should react on the things in
     */
     //lws_service(websocketPtr->lwsContext, 10);
-    websocketPtr->channel = Tcl_CreateChannel(&tclWebsocketsChannelType, Tcl_DStringValue(websocketPtr->handleName), websocketPtr, TCL_READABLE | TCL_WRITABLE);
-    Tcl_RegisterChannel(interp, websocketPtr->channel);
-    Tcl_SetObjResult(interp, Tcl_NewStringObj(Tcl_GetChannelName(websocketPtr->channel), -1));
+    websocketPtr->wsChannel = Tcl_CreateChannel(&WSChannelType, Tcl_DStringValue(websocketPtr->handleName), websocketPtr, TCL_READABLE | TCL_WRITABLE);
+    Tcl_RegisterChannel(interp, websocketPtr->wsChannel);
+    Tcl_SetObjResult(interp, Tcl_NewStringObj(Tcl_GetChannelName(websocketPtr->wsChannel), -1));
     return TCL_OK;
 }
 

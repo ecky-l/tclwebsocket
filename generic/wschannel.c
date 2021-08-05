@@ -1,4 +1,4 @@
-#include "websocketschannel.h"
+#include "wschannel.h"
 
 
 int WebsocketCloseProc(ClientData instanceData, Tcl_Interp* interp)
