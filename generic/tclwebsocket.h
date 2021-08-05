@@ -21,12 +21,12 @@ typedef struct _tclWebsocket {
 	Tcl_DString* handleName;
 	TclWebsocketsState* statePtr;
 	struct lws_context* lwsContext;
-	struct lws_client_connect_info lwsClientConnectInfo;
+	struct lws_client_connect_info* lwsClientConnectInfo;
 	Tcl_Channel wsChannel;
 } TclWebsocket;
 
 void TclWebsocket_WebsocketDestroy(TclWebsocket* websocketPtr);
 
 struct lws_context* Lws_GetClientContext();
-struct lws_client_connect_info Lws_GetClientConnectInfo(struct lws_context* context, char* host, int port, char* path, int ssl);
+struct lws_client_connect_info* Lws_GetClientConnectInfo(struct lws_context* context, char* host, int port, char* path, int ssl, void* userData);
 #endif /* WEBSOCKETS_H */

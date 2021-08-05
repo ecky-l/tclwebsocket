@@ -32,17 +32,18 @@ void Lws_DestroyContext(struct lws_context* context)
 	lws_context_destroy(context);
 }
 
-struct lws_client_connect_info Lws_GetClientConnectInfo(struct lws_context* context, char* host, int port, char* path, int ssl)
+struct lws_client_connect_info* Lws_GetClientConnectInfo(struct lws_context* context, char* host, int port, char* path, int ssl, void* userData)
 {
-	struct lws_client_connect_info info;
-	info.context = context;
-	info.port = port;
-	info.address = host;
-	info.path = path;
-	info.host = info.address;
-	info.origin = info.address;
-	info.ssl_connection = ssl ? LCCSCF_USE_SSL : 0;
-	info.protocol = _protocols[0].name;
-	info.pwsi = NULL;
+	struct lws_client_connect_info* info = ckalloc(sizeof(struct lws_client_connect_info));
+	info->context = context;
+	info->port = port;
+	info->address = host;
+	info->path = path;
+	info->host = info->address;
+	info->origin = info->address;
+	info->ssl_connection = ssl ? LCCSCF_USE_SSL : 0;
+	info->protocol = _protocols[0].name;
+	info->pwsi = NULL;
+	info->userdata = userData;
 	return info;
 }

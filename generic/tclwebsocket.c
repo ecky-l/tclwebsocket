@@ -1,3 +1,4 @@
+
 #include "tclwebsocket.h"
 #include "wschannel.h"
 
@@ -67,7 +68,7 @@ WebsocketCmd(ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* const
     if (objc > 0) {
         path = Tcl_GetString(objv[0]);
     } else {
-        path = "";
+        path = "/";
     }
 
     statePtr = (TclWebsocketsState*)clientData;
@@ -83,7 +84,7 @@ WebsocketCmd(ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* const
     }
 
     websocketPtr->lwsContext = Lws_GetClientContext();
-    websocketPtr->lwsClientConnectInfo = Lws_GetClientConnectInfo(websocketPtr->lwsContext, host, port, path, ssl);
+    websocketPtr->lwsClientConnectInfo = Lws_GetClientConnectInfo(websocketPtr->lwsContext, host, port, path, ssl, websocketPtr);
     
     {
         int isNew;
@@ -97,6 +98,17 @@ WebsocketCmd(ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* const
     //lws_service(websocketPtr->lwsContext, 10);
     websocketPtr->wsChannel = Tcl_CreateChannel(&WSChannelType, Tcl_DStringValue(websocketPtr->handleName), websocketPtr, TCL_READABLE | TCL_WRITABLE);
     Tcl_RegisterChannel(interp, websocketPtr->wsChannel);
+    
+    lws_client_connect_via_info(websocketPtr->lwsClientConnectInfo);
+    {
+        int n = 0;
+        for (int i = 0; i < 100; i++) {
+            // lws_service blocks forever after some iterations (depending on redirects and ssl probably)
+            // must integrate with the Tcl event loop
+            n = lws_service(websocketPtr->lwsContext, 0);
+            lwsl_user("ballbalddlsld n=%i, i=%i\n", n, i);
+        }
+    }
     Tcl_SetObjResult(interp, Tcl_NewStringObj(Tcl_GetChannelName(websocketPtr->wsChannel), -1));
     return TCL_OK;
 }
@@ -166,7 +178,8 @@ int Tclwebsocket_Init(Tcl_Interp* interp)
     }
     
     // TODO hook up a tcl proc for log levels
-    lws_set_log_level(LLL_USER | LLL_ERR | LLL_WARN | LLL_NOTICE, WebSocketLogNothingFcn);
+    //lws_set_log_level((LLL_USER | LLL_DEBUG |LLL_INFO | LLL_ERR | LLL_WARN | LLL_NOTICE, WebSocketLogNothingFcn);
+    lws_set_log_level(LLL_USER | LLL_DEBUG |LLL_INFO | LLL_ERR | LLL_WARN | LLL_NOTICE, NULL);
 
     Tcl_CreateObjCommand(interp, "websocket", (Tcl_ObjCmdProc*)WebsocketCmd, (ClientData)tclWebSocketsState,
         (Tcl_CmdDeleteProc*)Websockets_CleanupCmd);
