@@ -17,40 +17,6 @@ callback_minimal(struct lws* wsi, enum lws_callback_reasons reason, void* user, 
 	return 0;
 }
 
-struct lws_context* Lws_GetClientContext()
-{
-	struct lws_context* context = NULL;
-	struct lws_context_creation_info info;
-	memset(&info, 0, sizeof info);
-
-	info.options = LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT;
-	info.port = CONTEXT_PORT_NO_LISTEN;
-	info.protocols = _protocols;
-	context = lws_create_context(&info);
-	return context;
-}
-
-void Lws_DestroyContext(struct lws_context* context)
-{
-	lws_context_destroy(context);
-}
-
-struct lws_client_connect_info* Lws_GetClientConnectInfo(struct lws_context* context, char* host, int port, const char* path, int ssl, void* userData)
-{
-	struct lws_client_connect_info* info = (struct lws_client_connect_info*)ckalloc(sizeof(struct lws_client_connect_info));
-	info->context = context;
-	info->port = port;
-	info->address = host;
-	info->path = path;
-	info->host = info->address;
-	info->origin = info->address;
-	info->ssl_connection = ssl ? LCCSCF_USE_SSL : 0;
-	info->protocol = _protocols[0].name;
-	info->pwsi = NULL;
-	info->userdata = userData;
-	return info;
-}
-
 
 LwsClient::LwsClient(const char* host, int port, const char* path, int ssl, void* userData)
 	:
@@ -73,15 +39,27 @@ LwsClient::~LwsClient()
 	lws_context_destroy(m_context);
 }
 
+void LwsClient::service() const {
+	lws_client_connect_via_info(&m_client_connect_info);
+
+	// create a std::thread with lws_service() in the background
+	// callback should create events for Tcl event loop, source to be registered
+
+	/*
+	* call to lws_service() once should trigger the protocol callback when interesting things happen. The callback reason determines what happened
+	* Should react on the things in
+	*/
+	//lws_service(websocketPtr->lwsContext, 0);
+}
+
 struct lws_context* LwsClient::_create_context()
 {
-	struct lws_context* context = nullptr;
 	struct lws_context_creation_info info;
 	memset(&info, 0, sizeof info);
 
 	info.options = LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT;
 	info.port = CONTEXT_PORT_NO_LISTEN;
 	info.protocols = _protocols;
-	context = lws_create_context(&info);
-	return context;
+	return lws_create_context(&info);
 }
+

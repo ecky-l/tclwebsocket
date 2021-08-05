@@ -29,6 +29,12 @@ void WebsocketClient::register_channel(Tcl_Interp* interp) const
 	Tcl_RegisterChannel(interp, m_channel);
 }
 
+void WebsocketClient::service() const
+{
+	m_lwsClient.service();
+}
+
+
 std::string WebsocketClient::_generate_name()
 {
 	static int uid = 0;
