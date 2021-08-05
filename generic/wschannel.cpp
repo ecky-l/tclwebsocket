@@ -1,15 +1,16 @@
-#include "wschannel.h"
+#include "wschannel.hpp"
 
 
 int WebsocketCloseProc(ClientData instanceData, Tcl_Interp* interp)
 {
-	TclWebsocket* websocketPtr = (TclWebsocket*)instanceData;
-	TclWebsocket_WebsocketDestroy(websocketPtr);
+	WebsocketClient* websocketPtr = (WebsocketClient*)instanceData;
+	delete websocketPtr;
     return TCL_OK;
 }
 
 int WebsocketInputProc(ClientData instanceData, char* buf, int toRead, int* errorCodePtr)
 {
+	WebsocketClient* websocketPtr = (WebsocketClient*)instanceData;
 	sprintf(buf, "%s", "Hello World\n");
 	return strlen(buf);
 }

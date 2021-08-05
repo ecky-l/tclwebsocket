@@ -12,6 +12,8 @@ find_package(TclStub)
 find_package(OpenSSL)
 find_package(LibWebSockets)
 
+set(CMAKE_CXX_STANDARD 20)
+
 #
 # Common defines for all project targets
 #
@@ -30,12 +32,14 @@ set(TCLWEBSOCKET_DEFINES -DUSE_TCL_STUBS=1
 #
 # graphs Tcl extension
 #
-set(TCLWEBSOCKET_SOURCES generic/tclwebsocket.c
-                       generic/wschannel.c
-                       generic/lws.c
+set(TCLWEBSOCKET_SOURCES generic/tclwebsocket.cpp
+                       generic/wschannel.cpp
+                       generic/lws.cpp
+                       generic/websocketCmd.cpp
 )
-set(TCLWEBSOCKET_HEADERS generic/tclwebsocket.h
-                       generic/wschannel.h
+set(TCLWEBSOCKET_HEADERS generic/tclwebsocket.hpp
+                       generic/wschannel.hpp
+                       generic/lws.hpp
 )
 
 add_library(${CMAKE_PROJECT_NAME} SHARED ${TCLWEBSOCKET_SOURCES} ${TCLWEBSOCKET_HEADERS}  pkgIndex.tcl.in)
