@@ -26,6 +26,8 @@ callback_minimal(struct lws* wsi, enum lws_callback_reasons reason, void* user, 
 	case LWS_CALLBACK_CLIENT_CLOSED:
 		return -1;
 	case LWS_CALLBACK_CLIENT_RECEIVE: {
+		auto wsPtr = (WebsocketClient*)user;
+		wsPtr->add_input(in, len);
 		//std::string ttt((char*)in, len);
 		//std::vector<char> data(len);
 		//memcpy(&data[0], in, len);

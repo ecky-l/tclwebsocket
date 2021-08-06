@@ -1,5 +1,6 @@
 #include "wschannel.hpp"
 
+#include <thread>
 
 int WebsocketCloseProc(ClientData instanceData, Tcl_Interp* interp)
 {
@@ -10,9 +11,12 @@ int WebsocketCloseProc(ClientData instanceData, Tcl_Interp* interp)
 
 int WebsocketInputProc(ClientData instanceData, char* buf, int toRead, int* errorCodePtr)
 {
-	WebsocketClient* websocketPtr = (WebsocketClient*)instanceData;
-	sprintf(buf, "%s", "Hello World\n");
-	return strlen(buf);
+	WebsocketClient* wsPtr = (WebsocketClient*)instanceData;
+	while (!wsPtr->has_input()) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+	memset(buf, 0, toRead);
+	return wsPtr->get_input(&buf, toRead);
 }
 
 int WebsocketOutputProc(ClientData instanceData, CONST84 char* buf, int toWrite, int* errorCodePtr)
