@@ -1,7 +1,9 @@
 
 #include <tcl.h>
+#include <functional>
 
 #include "lws.hpp"
+#include "tclwebsocket.hpp"
 
 static int
 callback_minimal(struct lws* wsi, enum lws_callback_reasons reason, void* user, void* in, size_t len);
@@ -14,13 +16,39 @@ static const struct lws_protocols _protocols[] = {
 static int
 callback_minimal(struct lws* wsi, enum lws_callback_reasons reason, void* user, void* in, size_t len)
 {
+	switch (reason)
+	{
+	case LWS_CALLBACK_WSI_CREATE: {
+		auto wsPtr = (WebsocketClient*)user;
+		int i = 0;
+		break;
+	}
+	case LWS_CALLBACK_CLIENT_CLOSED:
+		return -1;
+	case LWS_CALLBACK_CLIENT_RECEIVE: {
+		//std::string ttt((char*)in, len);
+		//std::vector<char> data(len);
+		//memcpy(&data[0], in, len);
+		break;
+	}
+	case LWS_CALLBACK_GET_THREAD_ID: // return thread id
+		return std::hash<std::thread::id>{}(std::this_thread::get_id());
+	case LWS_CALLBACK_SERVER_WRITEABLE:
+	case LWS_CALLBACK_CLIENT_WRITEABLE:
+	default:
+		break;
+	}
 	return 0;
 }
 
 
 LwsClient::LwsClient(const char* host, int port, const char* path, int ssl, void* userData)
 	:
-	m_context(_create_context())
+	m_context(_create_context()),
+	m_client_connect_info(),
+	m_shutdown(false),
+	m_thread(nullptr),
+	m_wsi(nullptr)
 {
 	m_client_connect_info.context = m_context;
 	m_client_connect_info.port = port;
@@ -30,26 +58,40 @@ LwsClient::LwsClient(const char* host, int port, const char* path, int ssl, void
 	m_client_connect_info.origin = m_client_connect_info.address;
 	m_client_connect_info.ssl_connection = ssl ? LCCSCF_USE_SSL : 0;
 	m_client_connect_info.protocol = _protocols[0].name;
-	m_client_connect_info.pwsi = nullptr;
+	m_client_connect_info.pwsi = &m_wsi;
 	m_client_connect_info.userdata = userData;
 }
 
 LwsClient::~LwsClient()
 {
+	shutdown();
+	if (m_thread != nullptr && m_thread->joinable()) {
+		m_thread->join();
+	}
 	lws_context_destroy(m_context);
 }
 
-void LwsClient::service() const {
+void LwsClient::service()
+{
+	m_thread = std::make_unique<std::thread>(std::bind(&LwsClient::do_service, this));
+}
+
+void LwsClient::do_service()
+{
 	lws_client_connect_via_info(&m_client_connect_info);
+	int n = 0;
+	while (n >= 0 && !m_shutdown) {
+		n = lws_service(m_context, 0);
+	}
+}
 
-	// create a std::thread with lws_service() in the background
-	// callback should create events for Tcl event loop, source to be registered
-
-	/*
-	* call to lws_service() once should trigger the protocol callback when interesting things happen. The callback reason determines what happened
-	* Should react on the things in
-	*/
-	//lws_service(websocketPtr->lwsContext, 0);
+void LwsClient::shutdown() {
+	std::scoped_lock<std::mutex> lock(m_mutex);
+	m_shutdown = true;
+	if (m_wsi != nullptr) {
+		lws_close_reason(m_wsi, LWS_CLOSE_STATUS_NORMAL, (unsigned char*)"", 0);
+		lws_cancel_service(m_context);
+	}
 }
 
 struct lws_context* LwsClient::_create_context()

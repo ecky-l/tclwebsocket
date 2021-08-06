@@ -72,7 +72,7 @@ WebsocketCmd(ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* const
 
     auto wsPtr = new WebsocketClient(host, port, path, ssl);
     wsPtr->register_channel(interp);
-    
+    wsPtr->service();
     Tcl_SetObjResult(interp, Tcl_NewStringObj(wsPtr->name().c_str(), -1));
     return TCL_OK;
 }

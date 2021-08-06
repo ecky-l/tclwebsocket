@@ -16,11 +16,11 @@ public:
 
 	const std::string& name() const;
 	void register_channel(Tcl_Interp* interp) const;
-	void service() const;
-
+	void service();
+	void close();
 private:
 	const std::string m_name;
-	const LwsClient m_lwsClient;
+	LwsClient m_lwsClient;
 	const Tcl_Channel m_channel;
 
 	static std::string _generate_name();
