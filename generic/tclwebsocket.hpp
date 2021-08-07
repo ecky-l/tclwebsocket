@@ -22,6 +22,10 @@ public:
 	bool has_input() const;
 	void add_input(void* in, int len);
 	int get_input(char** buf, int toRead);
+
+	void add_output(const char* buf, size_t len);
+	bool get_output(std::vector<char>& buf) const;
+	void next_output();
 private:
 	const std::string m_name;
 	LwsClient m_lwsClient;

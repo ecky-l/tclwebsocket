@@ -64,6 +64,33 @@ bool WebsocketClient::has_input() const
 	return !m_input.empty();
 }
 
+void WebsocketClient::add_output(const char* buf, size_t len)
+{
+	std::scoped_lock<std::mutex> lock(m_mutex_output);
+	// TODO handle eol chars, they need to be removed
+	auto& data = m_output.emplace_back(std::vector<char>(LWS_PRE + len));
+	memcpy(&data[LWS_PRE], buf, len);
+	m_lwsClient.callback_on_writable();
+}
+
+bool WebsocketClient::get_output(std::vector<char>& buf) const
+{
+	std::scoped_lock<std::mutex> lock(m_mutex_output);
+	if (m_output.empty()) {
+		return false;
+	}
+	buf = m_output.front();
+	return true;
+}
+
+void WebsocketClient::next_output()
+{
+	std::scoped_lock<std::mutex> lock(m_mutex_output);
+	m_output.pop_front();
+	if (!m_output.empty()) {
+		m_lwsClient.callback_on_writable();
+	}
+}
 
 std::string WebsocketClient::_generate_name()
 {

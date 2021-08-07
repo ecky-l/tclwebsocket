@@ -14,6 +14,8 @@ public:
 
 	void service();
 	void shutdown();
+	void callback_on_writable();
+
 private:
 	struct lws_context* m_context;
 	struct lws_client_connect_info m_client_connect_info;

@@ -21,6 +21,8 @@ int WebsocketInputProc(ClientData instanceData, char* buf, int toRead, int* erro
 
 int WebsocketOutputProc(ClientData instanceData, CONST84 char* buf, int toWrite, int* errorCodePtr)
 {
+	auto wsPtr = (WebsocketClient*)instanceData;
+	wsPtr->add_output(buf, toWrite);
 	return toWrite;
 }
 
