@@ -39,8 +39,10 @@ void WebsocketClient::close()
 void WebsocketClient::add_input(void* in, int len)
 {
 	std::scoped_lock<std::mutex> lock(m_mutex_input);
-	auto& data = m_input.emplace_back(std::vector<char>(len));
+	// TODO: handle for binary data (add at all?)
+	auto& data = m_input.emplace_back(std::vector<char>(size_t(len) + 1));
 	memcpy(&data[0], in, len);
+	data[len] = '\n';
 }
 
 int WebsocketClient::get_input(char** buf, int toRead)
@@ -52,8 +54,6 @@ int WebsocketClient::get_input(char** buf, int toRead)
 	auto first = m_input.front();
 	int len = first.size();
 	memcpy(*buf, &first[0], len);
-	// TODO: handle for binary data (add at all?)
-	(*buf)[++len] = '\n';
 	m_input.pop_front();
 	return ++len;
 }
@@ -67,19 +67,22 @@ bool WebsocketClient::has_input() const
 void WebsocketClient::add_output(const char* buf, size_t len)
 {
 	std::scoped_lock<std::mutex> lock(m_mutex_output);
-	// TODO handle eol chars, they need to be removed
+	if (buf[len - 1] == '\n') {
+		len--;
+	}
 	auto& data = m_output.emplace_back(std::vector<char>(LWS_PRE + len));
 	memcpy(&data[LWS_PRE], buf, len);
 	m_lwsClient.callback_on_writable();
 }
 
-bool WebsocketClient::get_output(std::vector<char>& buf) const
+bool WebsocketClient::get_output(const char** buf, size_t* len) const
 {
 	std::scoped_lock<std::mutex> lock(m_mutex_output);
 	if (m_output.empty()) {
 		return false;
 	}
-	buf = m_output.front();
+	*buf = m_output.front().data() + LWS_PRE;
+	*len = m_output.front().size() - LWS_PRE;
 	return true;
 }
 

@@ -34,9 +34,10 @@ callback_minimal(struct lws* wsi, enum lws_callback_reasons reason, void* user, 
 		return std::hash<std::thread::id>{}(std::this_thread::get_id());
 	case LWS_CALLBACK_CLIENT_WRITEABLE: {
 		auto wsPtr = (WebsocketClient*)user;
-		std::vector<char> buf;
-		if (wsPtr->get_output(buf)) {
-			int written = lws_write(wsi, ((unsigned char*)buf.data() + LWS_PRE), buf.size() - LWS_PRE, LWS_WRITE_TEXT);
+		const char* buf;
+		size_t len = 0;
+		if (wsPtr->get_output(&buf, &len)) {
+			int written = lws_write(wsi, ((unsigned char*)buf), len, LWS_WRITE_TEXT);
 			if (written < len) {
 				// TODO error handling
 			}

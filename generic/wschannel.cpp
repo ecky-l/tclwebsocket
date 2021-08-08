@@ -4,14 +4,14 @@
 
 int WebsocketCloseProc(ClientData instanceData, Tcl_Interp* interp)
 {
-	WebsocketClient* websocketPtr = (WebsocketClient*)instanceData;
-	delete websocketPtr;
-    return TCL_OK;
+	auto wsPtr = (WebsocketClient*)instanceData;
+	delete wsPtr;
+	return TCL_OK;
 }
 
 int WebsocketInputProc(ClientData instanceData, char* buf, int toRead, int* errorCodePtr)
 {
-	WebsocketClient* wsPtr = (WebsocketClient*)instanceData;
+	auto wsPtr = (WebsocketClient*)instanceData;
 	while (!wsPtr->has_input()) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
