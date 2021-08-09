@@ -15,8 +15,11 @@ public:
 	virtual ~WebsocketClient();
 
 	const std::string& name() const;
-	void register_channel(Tcl_Interp* interp) const;
 	void service();
+
+	void register_channel(Tcl_Interp* interp) const;
+
+	//! called from the lws callback when a LWS_CALLBACK_*_CLOSED event occurs
 	void close();
 
 	bool has_input() const;
@@ -26,6 +29,7 @@ public:
 	void add_output(const char* buf, size_t len);
 	bool get_output(const char** buf, size_t* len) const;
 	void next_output();
+
 private:
 	const std::string m_name;
 	LwsClient m_lwsClient;

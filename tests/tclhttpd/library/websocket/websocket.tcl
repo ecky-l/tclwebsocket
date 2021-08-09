@@ -157,11 +157,11 @@ proc ::websocket::close { sock { code 1000 } { reason "" } } {
 	${log}::notice "Connection already closed"
 	return
     }
-    set Connection(state) CLOSED
 
     if { $code == "" || ![string is integer $code] } {
 	send $sock 8
 	${log}::info "Closing web socket"
+        set Connection(state) CLOSED
 	Push $sock close {}
     } else {
 	if { $reason eq "" } {
@@ -183,9 +183,9 @@ proc ::websocket::close { sock { code 1000 } { reason "" } } {
 	set msg [string range $msg 0 124];  # Cut answer to make sure it fits!
 	send $sock 8 $msg
 	${log}::info "Closing web socket: $code ($reason)"
+        set Connection(state) CLOSED
 	Push $sock close [list $code $reason]
     }
-
     Disconnect $sock
 }
 

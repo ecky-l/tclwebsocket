@@ -15,6 +15,7 @@ WebsocketClient::WebsocketClient(const char* host, int port, const char* path, i
 
 WebsocketClient::~WebsocketClient()
 {
+	int e = Tcl_IsChannelExisting(m_name.c_str());
 }
 
 const std::string& WebsocketClient::name() const
@@ -22,18 +23,20 @@ const std::string& WebsocketClient::name() const
 	return m_name;
 }
 
-void WebsocketClient::register_channel(Tcl_Interp* interp) const
-{
-	Tcl_RegisterChannel(interp, m_channel);
-}
-
 void WebsocketClient::service()
 {
 	m_lwsClient.service();
 }
 
+void WebsocketClient::register_channel(Tcl_Interp* interp) const
+{
+	Tcl_RegisterChannel(interp, m_channel);
+}
+
 void WebsocketClient::close()
 {
+	m_lwsClient.reset_wsi();
+	Tcl_NotifyChannel(m_channel, TCL_EXCEPTION);
 }
 
 void WebsocketClient::add_input(void* in, int len)

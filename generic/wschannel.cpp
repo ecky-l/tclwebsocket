@@ -38,7 +38,7 @@ int WebsocketGetOptionProc(ClientData instanceData, Tcl_Interp* interp, CONST84 
 
 void WebsocketWatchProc(ClientData instanceData, int mask)
 {
-
+	int i = 0;
 }
 
 int WebsocketGetHandleProc(ClientData instanceData, int direction, ClientData* handlePtr)

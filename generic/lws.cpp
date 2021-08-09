@@ -23,8 +23,11 @@ callback_minimal(struct lws* wsi, enum lws_callback_reasons reason, void* user, 
 		int i = 0;
 		break;
 	}
-	case LWS_CALLBACK_CLIENT_CLOSED:
+	case LWS_CALLBACK_CLIENT_CLOSED: {
+		auto wsPtr = (WebsocketClient*)user;
+		wsPtr->close();
 		return -1;
+	}
 	case LWS_CALLBACK_CLIENT_RECEIVE: {
 		auto wsPtr = (WebsocketClient*)user;
 		wsPtr->add_input(in, len);
@@ -90,7 +93,10 @@ void LwsClient::do_service()
 {
 	lws_client_connect_via_info(&m_client_connect_info);
 	int n = 0;
-	while (n >= 0 && !m_shutdown) {
+	while (n >= 0 && m_wsi && !m_shutdown) {
+		// Run as long as the return code of lws_service is positive,
+		// the wsi is intact and no shutdown is initiated.
+		// The wsi will become nullptr, when a server or client side shutdown was initiated.
 		n = lws_service(m_context, 0);
 	}
 }
@@ -98,10 +104,15 @@ void LwsClient::do_service()
 void LwsClient::shutdown() {
 	std::scoped_lock<std::mutex> lock(m_mutex);
 	m_shutdown = true;
-	if (m_wsi != nullptr) {
+	if (m_wsi != nullptr) { // only if the wsi was not closed before
 		lws_close_reason(m_wsi, LWS_CLOSE_STATUS_NORMAL, (unsigned char*)"", 0);
-		lws_cancel_service(m_context);
+		lws_callback_on_writable(m_wsi);
 	}
+}
+
+void LwsClient::reset_wsi()
+{
+	m_wsi = nullptr;
 }
 
 void LwsClient::callback_on_writable()

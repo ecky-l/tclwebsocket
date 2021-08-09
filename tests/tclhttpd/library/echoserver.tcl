@@ -30,11 +30,16 @@ proc ::ws::echo::handle {sock type message} {
             connect {
             }
             text {
-                puts "Received $message"
+                puts "Received $message on sock $sock"
                 websocket::send $sock text $message
+                #websocket::close $sock
+            }
+            disconnect {
+                puts "bye $sock"
+                #websocket::close $sock
             }
             close {
-                websocket::close $sock
+                #websocket::close $sock
             }
             ping {
                 # ignore

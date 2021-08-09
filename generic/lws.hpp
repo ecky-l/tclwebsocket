@@ -14,6 +14,7 @@ public:
 
 	void service();
 	void shutdown();
+	void reset_wsi();
 	void callback_on_writable();
 
 private:
