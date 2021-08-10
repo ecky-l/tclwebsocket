@@ -45,9 +45,8 @@ void WebsocketClient::add_input(void* in, int len)
 {
 	std::scoped_lock<std::mutex> lock(m_mutex_input);
 	// TODO: handle for binary data (add at all?)
-	auto& data = m_input.emplace_back(std::vector<char>(size_t(len) + 1));
+	auto& data = m_input.emplace_back(std::vector<char>(size_t(len)));
 	memcpy(&data[0], in, len);
-	data[len] = '\n';
 }
 
 int WebsocketClient::get_input(char** buf, int toRead)
@@ -56,11 +55,30 @@ int WebsocketClient::get_input(char** buf, int toRead)
 	if (m_input.empty()) {
 		return 0;
 	}
-	auto first = m_input.front();
-	int len = first.size();
-	memcpy(*buf, &first[0], len);
-	m_input.pop_front();
-	return ++len;
+
+	size_t read = 0;
+	while (!m_input.empty()) {
+		auto& first = m_input.front();
+		int len = first.size();
+
+		if ((read + len) > toRead) {
+			size_t toAdd = toRead - read;
+			size_t remaining = len - toAdd;
+			memcpy(*buf + read, &first[0], toAdd);
+
+			auto tmp = first;
+			m_input.pop_front();
+			auto& data = m_input.emplace_front(std::vector<char>(remaining));
+			memcpy(&data[0], &tmp[toAdd], remaining);
+			break;
+		}
+		else {
+			memcpy(*buf + read, &first[0], len);
+			read += len;
+			m_input.pop_front();
+		}
+	}
+	return read;
 }
 
 bool WebsocketClient::has_input() const
