@@ -110,6 +110,12 @@ void LwsClient::shutdown() {
 	}
 }
 
+bool LwsClient::is_shutting_down() const
+{
+	std::scoped_lock<std::mutex> lock(m_mutex);
+	return m_shutdown;
+}
+
 void LwsClient::reset_wsi()
 {
 	m_wsi = nullptr;

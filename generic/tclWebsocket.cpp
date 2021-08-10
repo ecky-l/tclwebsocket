@@ -36,7 +36,9 @@ void WebsocketClient::register_channel(Tcl_Interp* interp) const
 void WebsocketClient::close()
 {
 	m_lwsClient.reset_wsi();
-	Tcl_NotifyChannel(m_channel, TCL_EXCEPTION);
+	if (!m_lwsClient.is_shutting_down()) {
+		Tcl_NotifyChannel(m_channel, TCL_EXCEPTION);
+	}
 }
 
 void WebsocketClient::add_input(void* in, int len)

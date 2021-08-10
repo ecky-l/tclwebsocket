@@ -14,6 +14,14 @@ public:
 
 	void service();
 	void shutdown();
+
+	//! Check if the connection is shutting down.
+	//!
+	//! This is the case if the socket is intentionally closed by the main thread
+	//! We need to distinguish it from the case where the connection close was initiated
+	//! by the remote, because this is handled differently.
+	bool is_shutting_down() const;
+
 	void reset_wsi();
 	void callback_on_writable();
 
@@ -25,7 +33,7 @@ private:
 	bool m_shutdown;
 
 	std::unique_ptr<std::thread> m_thread;
-	std::mutex m_mutex;
+	mutable std::mutex m_mutex;
 
 	void do_service();
 
