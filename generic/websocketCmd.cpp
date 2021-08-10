@@ -96,10 +96,14 @@ int Tclwebsocket_Init(Tcl_Interp* interp)
 #endif //USE_TCL_STUBS
 
     // TODO hook up a tcl proc for log levels
-    //lws_set_log_level((LLL_USER | LLL_DEBUG |LLL_INFO | LLL_ERR | LLL_WARN | LLL_NOTICE, WebSocketLogNothingFcn);
-    lws_set_log_level(LLL_USER | LLL_DEBUG | LLL_INFO | LLL_ERR | LLL_WARN | LLL_NOTICE, NULL);
+    lws_set_log_level(LLL_USER | LLL_DEBUG |LLL_INFO | LLL_ERR | LLL_WARN | LLL_NOTICE, WebSocketLogNothingFcn);
+    //lws_set_log_level(LLL_USER | LLL_DEBUG | LLL_INFO | LLL_ERR | LLL_WARN | LLL_NOTICE, NULL);
 
     Tcl_CreateObjCommand(interp, "websocket", (Tcl_ObjCmdProc*)WebsocketCmd, (ClientData)nullptr, (Tcl_CmdDeleteProc*)nullptr);
+
+    if (Tcl_PkgProvide(interp, PACKAGE_NAME, PACKAGE_VERSION) != TCL_OK) {
+        return TCL_ERROR;
+    }
 
     return TCL_OK;
 }

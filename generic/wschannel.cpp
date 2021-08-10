@@ -55,3 +55,9 @@ int WebsocketFlushProc(ClientData instanceData)
 {
 	return TCL_OK;
 }
+
+int WebsocketHandlerProc(ClientData instanceData, int interestMask)
+{
+	int i = 0;
+	return interestMask;
+}

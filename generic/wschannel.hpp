@@ -12,6 +12,7 @@ void WebsocketWatchProc(ClientData instanceData, int mask);
 /* int WebsocketGetHandleProc(ClientData instanceData, int direction, ClientData* handlePtr);*/
 int WebsocketBlockModeProc(ClientData instanceData, int mode);
 int WebsocketFlushProc(ClientData instanceData);
+int WebsocketHandlerProc(ClientData instanceData, int interestMask);
 
 static Tcl_ChannelType WSChannelType = {
     .typeName = "websocket",
@@ -27,7 +28,7 @@ static Tcl_ChannelType WSChannelType = {
     .close2Proc = (Tcl_DriverClose2Proc*)NULL,
     .blockModeProc = WebsocketBlockModeProc,
     .flushProc = WebsocketFlushProc,
-    .handlerProc = (Tcl_DriverHandlerProc*)NULL,
+    .handlerProc = WebsocketHandlerProc,
     .wideSeekProc = (Tcl_DriverWideSeekProc*)NULL,
     .threadActionProc = (Tcl_DriverThreadActionProc*)NULL, // later
     .truncateProc = (Tcl_DriverTruncateProc*)NULL
