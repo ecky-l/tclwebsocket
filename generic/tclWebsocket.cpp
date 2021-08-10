@@ -72,9 +72,6 @@ bool WebsocketClient::has_input() const
 void WebsocketClient::add_output(const char* buf, size_t len)
 {
 	std::scoped_lock<std::mutex> lock(m_mutex_output);
-	if (buf[len - 1] == '\n') {
-		len--;
-	}
 	auto& data = m_output.emplace_back(std::vector<char>(LWS_PRE + len));
 	memcpy(&data[LWS_PRE], buf, len);
 	m_lwsClient.callback_on_writable();
