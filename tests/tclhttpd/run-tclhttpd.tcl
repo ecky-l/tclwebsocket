@@ -8,7 +8,7 @@ proc start-tclhttpd {} {
     global PWD tcl_platform
     switch -- $tcl_platform(platform) {
         windows {
-            open "|tclhttpd -library [file join $PWD library] -docRoot [file join $PWD data]"
+            set fh [open "|tclhttpd -library [file join $PWD library] -docRoot [file join $PWD data]"]
         }
     }
 
@@ -19,6 +19,7 @@ proc start-tclhttpd {} {
         after 1000
     }
     close $sock
+    return $fh
 }
 
 proc stop-tclhttpd {} {
@@ -31,7 +32,7 @@ proc stop-tclhttpd {} {
     }
 }
 
-if {[llength $argv] > 0} {
+if {[info exists argv] && [llength $argv] > 0} {
     set stst [lindex $argv 0]
     switch -- $stst {
         start - stop {

@@ -49,6 +49,16 @@ set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES PREFIX "")
 configure_file(pkgIndex.tcl.in pkgIndex.tcl)
 
 #
+# The tests
+#
+enable_testing()
+add_test(
+    NAME "client-connect"
+    COMMAND ${TCL_TCLSH} tests/run.tcl -load $<TARGET_FILE:tclwebsocket> -dir ${CMAKE_CURRENT_BINARY_DIR} -files client-connect
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+#
 # install section for packaging
 #
 
