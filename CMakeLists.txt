@@ -32,13 +32,13 @@ set(TCLWEBSOCKET_DEFINES -DUSE_TCL_STUBS=1
 #
 # graphs Tcl extension
 #
-set(TCLWEBSOCKET_SOURCES generic/tclwebsocket.cpp
-                       generic/wschannel.cpp
+set(TCLWEBSOCKET_SOURCES generic/tclWebsocket.cpp
+                       generic/wsChannel.cpp
                        generic/lws.cpp
                        generic/websocketCmd.cpp
 )
-set(TCLWEBSOCKET_HEADERS generic/tclwebsocket.hpp
-                       generic/wschannel.hpp
+set(TCLWEBSOCKET_HEADERS generic/tclWebsocket.hpp
+                       generic/wsChannel.hpp
                        generic/lws.hpp
 )
 
