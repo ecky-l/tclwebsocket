@@ -1,0 +1,24 @@
+## 01-client-common.test (created by Tloona here)
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+    tcltest::configure -verbose {body pass start line error}
+}
+
+if {[catch {package present tclwebsocket} ver]} {
+    source [file join [file dirname [info script]] loadpackage.tcl]
+}
+
+#### fixtures
+#### /fixtures
+
+tcltest::test client-connect "websocket client can connect in sync mode" -setup {
+} -body {
+    set sock [websocket localhost 8015 /test/text]
+    after 5000 {set f 1}
+    vwait f
+    set sock
+} -cleanup {
+    close $sock
+} -result websocket* -match glob
