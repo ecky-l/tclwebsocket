@@ -13,12 +13,13 @@ public:
 	virtual ~LwsClient();
 
 	void service();
+    void cancel_service();
 	void shutdown();
 
 	//! Check if the connection is shutting down.
 	//!
 	//! This is the case if the socket is intentionally closed by the main thread
-	//! We need to distinguish it from the case where the connection close was initiated
+	//! We need to distinguish it from the case where the connection shutdown was initiated
 	//! by the remote, because this is handled differently.
 	bool is_shutting_down() const;
 

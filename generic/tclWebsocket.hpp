@@ -15,12 +15,20 @@ public:
 	virtual ~WebsocketClient();
 
 	const std::string& name() const;
-	void service();
+
+    bool service();
+
+    //! Called when the client connection is established (LWS_CALLBACK_CLIENT_ESTABLISHED)
+    //!
+    //! If in sync mode, notifies a condition_variable that the connection is alive. This is
+    //! where the service() method waits upon.
+    void connected();
 
 	void register_channel(Tcl_Interp* interp) const;
+    void unregister_channel(Tcl_Interp* interp) const;
 
 	//! called from the lws callback when a LWS_CALLBACK_*_CLOSED event occurs
-	void close();
+	void shutdown();
 
 	bool has_input() const;
 	void add_input(void* in, int len);
@@ -35,6 +43,9 @@ private:
 	LwsClient m_lwsClient;
 	const Tcl_Channel m_channel;
 
+    mutable std::mutex m_mutex_connected;
+    mutable std::condition_variable m_cond_connected;
+    bool m_connected;
 
 	mutable std::mutex m_mutex_input;
 	std::condition_variable m_cond_input;

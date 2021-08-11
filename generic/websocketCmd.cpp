@@ -2,6 +2,8 @@
 #include <tcl.h>
 #include "tclwebsocket.hpp"
 
+#include <sstream>
+
 static int
 WebsocketCmd(ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* const objv[])
 {
@@ -72,7 +74,15 @@ WebsocketCmd(ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* const
 
     auto wsPtr = new WebsocketClient(host, port, path, ssl);
     wsPtr->register_channel(interp);
-    wsPtr->service();
+    if (!wsPtr->service()) {
+        wsPtr->unregister_channel(interp); // this is enough to close the channel and consequently destroy wsPtr
+
+        Tcl_SetErrorCode(interp, "WEBSOCKET", "ECONNREFUSED", "{connection refused}", (char*)NULL);
+        std::stringstream ss;
+        ss << "couldn't open websocket to " << host << ":" << port << " (connection refused)";
+        Tcl_SetObjResult(interp, Tcl_NewStringObj(ss.str().c_str(), -1));
+        return TCL_ERROR;
+    }
     Tcl_SetObjResult(interp, Tcl_NewStringObj(wsPtr->name().c_str(), -1));
     return TCL_OK;
 }

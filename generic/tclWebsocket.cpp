@@ -9,7 +9,8 @@ WebsocketClient::WebsocketClient(const char* host, int port, const char* path, i
 	:
 	m_name(_generate_name()),
 	m_lwsClient(host, port, path, ssl, this),
-	m_channel(Tcl_CreateChannel(&WSChannelType, m_name.c_str(), this, TCL_READABLE|TCL_WRITABLE))
+	m_channel(Tcl_CreateChannel(&WSChannelType, m_name.c_str(), this, TCL_READABLE|TCL_WRITABLE)),
+    m_connected(false)
 {
 }
 
@@ -23,17 +24,43 @@ const std::string& WebsocketClient::name() const
 	return m_name;
 }
 
-void WebsocketClient::service()
+bool WebsocketClient::service()
 {
+    using namespace std::chrono_literals;
+
 	m_lwsClient.service();
+
+    // wait for connection to be established in sync mode
+    std::unique_lock<std::mutex> lock(m_mutex_connected);
+    m_cond_connected.wait_for(lock, 5s, [&]() { return m_connected; });
+
+    if (!m_connected) {
+        m_lwsClient.cancel_service();
+    }
+
+    return m_connected;
 }
+
+void WebsocketClient::connected()
+{
+    std::lock_guard<std::mutex> lock(m_mutex_connected);
+    m_connected = true;
+    m_cond_connected.notify_one();
+}
+
 
 void WebsocketClient::register_channel(Tcl_Interp* interp) const
 {
 	Tcl_RegisterChannel(interp, m_channel);
 }
+void WebsocketClient::unregister_channel(Tcl_Interp* interp) const
+{
+    if (Tcl_IsChannelRegistered(interp, m_channel)) {
+        Tcl_UnregisterChannel(interp, m_channel);
+    }
+}
 
-void WebsocketClient::close()
+void WebsocketClient::shutdown()
 {
 	m_lwsClient.reset_wsi();
 	if (!m_lwsClient.is_shutting_down()) {

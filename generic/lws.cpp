@@ -16,16 +16,15 @@ static const struct lws_protocols _protocols[] = {
 static int
 callback_minimal(struct lws* wsi, enum lws_callback_reasons reason, void* user, void* in, size_t len)
 {
-	switch (reason)
-	{
-	case LWS_CALLBACK_WSI_CREATE: {
+    switch (reason) {
+    case LWS_CALLBACK_CLIENT_ESTABLISHED: {
+        auto wsPtr = (WebsocketClient*)user;
+        wsPtr->connected();
+        break;
+    }
+    case LWS_CALLBACK_CLIENT_CLOSED: {
 		auto wsPtr = (WebsocketClient*)user;
-		int i = 0;
-		break;
-	}
-	case LWS_CALLBACK_CLIENT_CLOSED: {
-		auto wsPtr = (WebsocketClient*)user;
-		wsPtr->close();
+		wsPtr->shutdown();
 		return -1;
 	}
 	case LWS_CALLBACK_CLIENT_RECEIVE: {
@@ -101,8 +100,15 @@ void LwsClient::do_service()
 	}
 }
 
+void LwsClient::cancel_service()
+{
+    reset_wsi();
+    lws_cancel_service(m_context);
+}
+
+
 void LwsClient::shutdown() {
-	std::scoped_lock<std::mutex> lock(m_mutex);
+	std::lock_guard<std::mutex> lock(m_mutex);
 	m_shutdown = true;
 	if (m_wsi != nullptr) { // only if the wsi was not closed before
 		lws_close_reason(m_wsi, LWS_CLOSE_STATUS_NORMAL, (unsigned char*)"", 0);
@@ -112,7 +118,7 @@ void LwsClient::shutdown() {
 
 bool LwsClient::is_shutting_down() const
 {
-	std::scoped_lock<std::mutex> lock(m_mutex);
+	std::lock_guard<std::mutex> lock(m_mutex);
 	return m_shutdown;
 }
 

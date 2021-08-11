@@ -13,12 +13,24 @@ if {[catch {package present tclwebsocket} ver]} {
 #### fixtures
 #### /fixtures
 
-tcltest::test client-connect "websocket client can connect in sync mode" -setup {
+test client-connect "websocket client can connect in sync mode" -setup {
 } -body {
-    set sock [websocket localhost 8015 /test/text]
-    after 5000 {set f 1}
-    vwait f
-    set sock
+    set sock [websocket localhost 8015 /test/ping]
 } -cleanup {
     close $sock
 } -result websocket* -match glob
+
+test client-pong "websocket client can receive pongs" -setup {
+} -body {
+    set sock [websocket localhost 8015 /test/ping]
+    gets $sock
+} -cleanup {
+    close $sock
+} -result done
+
+test client-refused "websocket connection refused if server not available" -setup {
+} -body {
+    websocket localhost 8020 /test/ping
+} -cleanup {
+} -returnCodes error -result {couldn't open websocket to localhost:8020 (connection refused)}
+
