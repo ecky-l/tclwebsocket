@@ -16,18 +16,10 @@ proc ::ws::echo::handle {sock type message} {
             }
             text {
                 puts "Received $message on sock $sock"
-                websocket::send $sock text $message
-                #websocket::close $sock
+                websocket::send $sock text [string trimr $message]
             }
-            disconnect {
+            disconnect - close {
                 puts "bye $sock"
-                #websocket::close $sock
-            }
-            close {
-                #websocket::close $sock
-            }
-            ping {
-                # ignore
             }
         }
     } trap {} {err status} {
