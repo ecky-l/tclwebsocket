@@ -18,8 +18,11 @@ proc ::ws::echo::handle {sock type message} {
                 puts "Received $message on sock $sock"
                 websocket::send $sock text [string trimr $message]
             }
-            disconnect - close {
-                puts "bye $sock"
+            disconnect {
+                puts "disconnected $sock"
+            }
+            close {
+                puts "closed $sock"
             }
         }
     } trap {} {err status} {

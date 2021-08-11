@@ -38,10 +38,12 @@ proc ::ws::test::text::handle {sock type message} {
 
 proc ::ws::test::text::ProcessMessage {sock message} {
     set cmd [string tol [string trim [lindex [split $message :] 0]]]
-    set args [lmap a [split [string trim [lindex [split $message :] 1]] =] {string trim $a}]
+    set args [lmap a [string trim [lindex [split $message :] 1]] {string trim $a}]
     ::ws::test::text::Cmd::[set cmd] $sock {*}$args
 }
 
 proc ::ws::test::text::Cmd::remoteclose {sock args} {
     websocket::close $sock
 }
+
+
