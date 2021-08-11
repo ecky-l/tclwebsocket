@@ -43,18 +43,25 @@ void WebsocketClient::close()
 
 void WebsocketClient::add_input(void* in, int len)
 {
-	std::scoped_lock<std::mutex> lock(m_mutex_input);
-	// TODO: handle for binary data (add at all?)
-	auto& data = m_input.emplace_back(std::vector<char>(size_t(len)));
+	std::lock_guard<std::mutex> lock(m_mutex_input);
+    auto& data = m_input.emplace_back(std::vector<char>(size_t(len)));
 	memcpy(&data[0], in, len);
+
+    // For text input we must add an extra newline, because we cannot rely on getting
+    // an ending newline from the server. It screws up [gets] if we don't get an ending 
+    // newline, since [gets] reads all characters up to the first newline it finds. If
+    // there is no newline, [gets] will hang in an endless loop.
+    // For binary data nothing must be appended.
+    data.push_back('\n');
+	m_cond_input.notify_one();
 }
 
 int WebsocketClient::get_input(char** buf, int toRead)
 {
-	std::scoped_lock<std::mutex> lock(m_mutex_input);
-	if (m_input.empty()) {
-		return 0;
-	}
+	std::unique_lock<std::mutex> lock(m_mutex_input);
+	m_cond_input.wait(lock, [&]() { return !m_input.empty(); });
+
+    lock.unlock();
 
 	size_t read = 0;
 	while (!m_input.empty()) {
@@ -67,17 +74,25 @@ int WebsocketClient::get_input(char** buf, int toRead)
 			memcpy(*buf + read, &first[0], toAdd);
 
 			auto tmp = first;
+
+            lock.lock();
 			m_input.pop_front();
 			auto& data = m_input.emplace_front(std::vector<char>(remaining));
-			memcpy(&data[0], &tmp[toAdd], remaining);
+            lock.unlock();
+
+            memcpy(&data[0], &tmp[toAdd], remaining);
 			break;
 		}
 		else {
 			memcpy(*buf + read, &first[0], len);
 			read += len;
+
+            lock.lock();
 			m_input.pop_front();
+            lock.unlock();
 		}
 	}
+
 	return read;
 }
 

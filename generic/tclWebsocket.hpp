@@ -35,9 +35,12 @@ private:
 	LwsClient m_lwsClient;
 	const Tcl_Channel m_channel;
 
+
 	mutable std::mutex m_mutex_input;
-	mutable std::mutex m_mutex_output;
+	std::condition_variable m_cond_input;
 	std::list<std::vector<char>> m_input;
+
+	mutable std::mutex m_mutex_output;
 	std::list<std::vector<char>> m_output;
 
 	static std::string _generate_name();
