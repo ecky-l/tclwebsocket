@@ -28,7 +28,8 @@ set(TCLWEBSOCKET_DEFINES -DUSE_TCL_STUBS=1
 #
 # graphs Tcl extension
 #
-set(TCLWEBSOCKET_SOURCES generic/tclWebsocket.cpp
+set(TCLWEBSOCKET_SOURCES generic/globals.cpp
+					   generic/tclWebsocket.cpp
                        generic/wsChannel.cpp
                        generic/lws.cpp
                        generic/websocketCmd.cpp
@@ -54,7 +55,7 @@ add_test(
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 add_test(
-    NAME "client-io-text"
+    NAME "client-io"
     COMMAND ${TCL_TCLSH} tests/run.tcl -load $<TARGET_FILE:tclwebsocket> -dir ${CMAKE_CURRENT_BINARY_DIR} -files client-io
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
