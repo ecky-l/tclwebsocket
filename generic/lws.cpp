@@ -24,19 +24,19 @@ callback_minimal(struct lws* wsi, enum lws_callback_reasons reason, void* user, 
     }
     case LWS_CALLBACK_CLIENT_CLOSED: {
 		auto wsPtr = (WebsocketClient*)user;
-		wsPtr->shutdown();
-		return -1;
+        wsPtr->shutdown();
+        return -1;
 	}
 	case LWS_CALLBACK_CLIENT_RECEIVE: {
 		auto wsPtr = (WebsocketClient*)user;
 		wsPtr->add_input(in, len);
-		break;
+        break;
 	}
 	case LWS_CALLBACK_GET_THREAD_ID: // return thread id
 		return std::hash<std::thread::id>{}(std::this_thread::get_id());
 	case LWS_CALLBACK_CLIENT_WRITEABLE: {
 		auto wsPtr = (WebsocketClient*)user;
-		const char* buf;
+        const char* buf;
 		size_t len = 0;
 		if (wsPtr->get_output(&buf, &len)) {
 			int written = lws_write(wsi, ((unsigned char*)buf), len, LWS_WRITE_TEXT);
@@ -45,7 +45,7 @@ callback_minimal(struct lws* wsi, enum lws_callback_reasons reason, void* user, 
 			}
 			wsPtr->next_output();
 		}
-		break;
+        break;
 	}
 	default:
 		break;

@@ -28,12 +28,11 @@ test client-io-text-normal "client text io in blocking mode, normal" -setup $con
 } -cleanup $closeSock -result hello
 
 test client-io-text-blocks "client text io in blocking mode blocks until input arrives" \
-    -setup $connectCmd -body {
-
+        -setup $connectCmd -body {
     fconfigure $sock -buffering line
     puts $sock "echoafter: 2000 hello"
     set t [lindex [time [list gets $sock]] 0]
-    expr $t > 2000000
+    expr $t >= 2000000
 } -cleanup $closeSock -result 1
 
 test client-io-text-nonblocking "websocket client text io in non-blocking mode" -setup $connectEcho -body {

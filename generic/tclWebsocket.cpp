@@ -17,6 +17,15 @@ WebsocketClient::WebsocketClient(const char* host, int port, const char* path, i
 
 WebsocketClient::~WebsocketClient()
 {
+    {
+        std::lock_guard<std::mutex> lock(m_mutex_input);
+        m_input.clear();
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(m_mutex_output);
+        m_output.clear();
+    }
 }
 
 void WebsocketClient::blocking(bool blocking)
@@ -83,7 +92,7 @@ void WebsocketClient::add_input(void* in, int len)
 {
 	std::lock_guard<std::mutex> lock(m_mutex_input);
     auto& data = m_input.emplace_back(std::vector<char>(size_t(len)));
-	memcpy(&data[0], in, len);
+    memcpy(&data[0], in, len);
 
     // For text input we must add an extra newline, because we cannot rely on getting
     // an ending newline from the server. It screws up [gets] if we don't get an ending 
@@ -110,6 +119,8 @@ int WebsocketClient::get_input(char** buf, int toRead, int* errorCodePtr)
         }
     }
 
+    // Avoid pessimistic locking while assembling all inputs for the Tcl layer.
+    // The only points where the lock is needed is when the std::list is modified.
     lock.unlock();
 
 	size_t read = 0;
@@ -137,7 +148,7 @@ int WebsocketClient::get_input(char** buf, int toRead, int* errorCodePtr)
 			read += len;
 
             lock.lock();
-			m_input.pop_front();
+            m_input.pop_front();
             lock.unlock();
 		}
 	}
@@ -147,13 +158,13 @@ int WebsocketClient::get_input(char** buf, int toRead, int* errorCodePtr)
 
 bool WebsocketClient::has_input() const
 {
-	std::scoped_lock<std::mutex> lock(m_mutex_input);
+	std::lock_guard<std::mutex> lock(m_mutex_input);
 	return !m_input.empty();
 }
 
 void WebsocketClient::add_output(const char* buf, size_t len)
 {
-	std::scoped_lock<std::mutex> lock(m_mutex_output);
+	std::lock_guard<std::mutex> lock(m_mutex_output);
 	auto& data = m_output.emplace_back(std::vector<char>(LWS_PRE + len));
 	memcpy(&data[LWS_PRE], buf, len);
 	m_lwsClient.callback_on_writable();
@@ -161,22 +172,30 @@ void WebsocketClient::add_output(const char* buf, size_t len)
 
 bool WebsocketClient::get_output(const char** buf, size_t* len) const
 {
-	std::scoped_lock<std::mutex> lock(m_mutex_output);
-	if (m_output.empty()) {
-		return false;
-	}
-	*buf = m_output.front().data() + LWS_PRE;
-	*len = m_output.front().size() - LWS_PRE;
-	return true;
+    std::lock_guard<std::mutex> lock(m_mutex_output);
+    if (m_output.empty()) {
+        return false;
+    }
+    *buf = m_output.front().data() + LWS_PRE;
+    *len = m_output.front().size() - LWS_PRE;
+    return true;
 }
 
 void WebsocketClient::next_output()
 {
-	std::scoped_lock<std::mutex> lock(m_mutex_output);
-	m_output.pop_front();
-	if (!m_output.empty()) {
-		m_lwsClient.callback_on_writable();
-	}
+    std::lock_guard<std::mutex> lock(m_mutex_output);
+    if (m_output.empty()) {
+        // This can happen if the socket is destroyed while we are here, since the
+        // destructor empties both, input and output buffers.
+        // In this case the following pop_front must not happen, but there is nothing
+        // more to do anyway.
+        return;
+    }
+
+    m_output.pop_front();
+    if (!m_output.empty()) {
+        m_lwsClient.callback_on_writable();
+    }
 }
 
 std::string WebsocketClient::_generate_name()
