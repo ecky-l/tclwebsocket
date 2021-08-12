@@ -31,6 +31,11 @@ test client-pong "websocket client can receive pongs" -setup {
 test client-refused "websocket connection refused if server not available" -setup {
 } -body {
     websocket localhost 8020 /test/ping
-} -cleanup {
 } -returnCodes error -result {couldn't open websocket to localhost:8020 (connection refused)}
 
+tcltest::test client-ssl-connect "websocket ssl connect works" -body {
+    set sock [websocket -ssl ws.kraken.com]
+    gets $sock
+} -cleanup {
+    close $sock
+} -result {*"status":"online"*} -match glob
