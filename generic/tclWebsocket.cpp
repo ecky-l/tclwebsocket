@@ -10,13 +10,24 @@ WebsocketClient::WebsocketClient(const char* host, int port, const char* path, i
 	m_name(_generate_name()),
 	m_lwsClient(host, port, path, ssl, this),
 	m_channel(Tcl_CreateChannel(&WSChannelType, m_name.c_str(), this, TCL_READABLE|TCL_WRITABLE)),
-    m_connected(false)
+    m_connected(false),
+    m_blocking(true)
 {
 }
 
 WebsocketClient::~WebsocketClient()
 {
-	int e = Tcl_IsChannelExisting(m_name.c_str());
+}
+
+void WebsocketClient::blocking(bool blocking)
+{
+    std::lock_guard<std::mutex> lock(m_mutex_input);
+    m_blocking = blocking;
+}
+
+bool WebsocketClient::blocking() const
+{
+    return m_blocking;
 }
 
 const std::string& WebsocketClient::name() const
@@ -83,10 +94,21 @@ void WebsocketClient::add_input(void* in, int len)
 	m_cond_input.notify_one();
 }
 
-int WebsocketClient::get_input(char** buf, int toRead)
+int WebsocketClient::get_input(char** buf, int toRead, int* errorCodePtr)
 {
 	std::unique_lock<std::mutex> lock(m_mutex_input);
-	m_cond_input.wait(lock, [&]() { return !m_input.empty(); });
+    if (m_blocking) {
+        m_cond_input.wait(lock, [&]() { return !m_input.empty(); });
+    }
+    else {
+        // Nonblocking mode. Indicate to the tcl channel layer that no input
+        // is available by setting the errorCode to EAGAIN and return -1. This
+        // will lead to [fblocked] returning true.
+        if (m_input.empty()) {
+            *errorCodePtr = EAGAIN;
+            return -1;
+        }
+    }
 
     lock.unlock();
 

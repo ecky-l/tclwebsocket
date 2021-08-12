@@ -14,6 +14,9 @@ public:
 	WebsocketClient(const char* host, int port, const char* path, int ssl);
 	virtual ~WebsocketClient();
 
+    void blocking(bool blocking);
+    bool blocking() const;
+
 	const std::string& name() const;
 
     bool service();
@@ -32,7 +35,7 @@ public:
 
 	bool has_input() const;
 	void add_input(void* in, int len);
-	int get_input(char** buf, int toRead);
+	int get_input(char** buf, int toRead, int *errorCodePtr);
 
 	void add_output(const char* buf, size_t len);
 	bool get_output(const char** buf, size_t* len) const;
@@ -46,6 +49,8 @@ private:
     mutable std::mutex m_mutex_connected;
     mutable std::condition_variable m_cond_connected;
     bool m_connected;
+
+    bool m_blocking;
 
 	mutable std::mutex m_mutex_input;
 	std::condition_variable m_cond_input;

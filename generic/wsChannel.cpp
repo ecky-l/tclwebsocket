@@ -12,11 +12,9 @@ int WebsocketCloseProc(ClientData instanceData, Tcl_Interp* interp)
 int WebsocketInputProc(ClientData instanceData, char* buf, int toRead, int* errorCodePtr)
 {
 	auto wsPtr = (WebsocketClient*)instanceData;
-	//while (!wsPtr->has_input()) {
-    //    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-	//}
 	memset(buf, 0, toRead);
-	return wsPtr->get_input(&buf, toRead);
+    // return 0; indicates eof
+    return wsPtr->get_input(&buf, toRead, errorCodePtr);
 }
 
 int WebsocketOutputProc(ClientData instanceData, CONST84 char* buf, int toWrite, int* errorCodePtr)
@@ -48,7 +46,9 @@ int WebsocketGetHandleProc(ClientData instanceData, int direction, ClientData* h
 
 int WebsocketBlockModeProc(ClientData instanceData, int mode)
 {
-	return TCL_OK;
+    auto wsPtr = (WebsocketClient*)instanceData;
+    wsPtr->blocking(mode == TCL_MODE_BLOCKING);
+    return TCL_OK;
 }
 
 int WebsocketFlushProc(ClientData instanceData)
