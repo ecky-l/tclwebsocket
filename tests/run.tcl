@@ -23,7 +23,7 @@ if {[llength $argv] != 0} {
 set ::tcltest::testSingleFile false
 set ::tcltest::testsDirectory [file dir [info script]]
 
-tcltest::configure -verbose {body pass line error}
+tcltest::configure -verbose {start body pass line error}
 
 # We need to ensure that the testsDirectory is absolute
 if {[catch {::tcltest::normalizePath ::tcltest::testsDirectory}]} {

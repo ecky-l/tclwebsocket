@@ -12,7 +12,7 @@ namespace eval ::ws {
 }
 
 
-proc ::ws::cmd::handle] {sock type message} {
+proc ::ws::cmd::handle {sock type message} {
     try {
         switch -glob -- $type {
             connect {
@@ -37,11 +37,16 @@ proc ::ws::cmd::handle] {sock type message} {
 proc ::ws::cmd::ProcessMessage {sock message} {
     set cmd [string tol [string trim [lindex [split $message :] 0]]]
     set args [lmap a [lindex [split $message :] 1] {string trim $a}]
-    ::ws::test::text::Cmd::[set cmd] $sock {*}$args
+    ::ws::cmd::Cmd::[set cmd] $sock {*}$args
 }
 
 proc ::ws::cmd::Cmd::remoteclose {sock args} {
     websocket::close $sock
+}
+
+proc ::ws::cmd::Cmd::echoafter {sock tm text} {
+    after $tm
+    websocket::send $sock text $text
 }
 
 

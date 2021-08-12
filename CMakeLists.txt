@@ -25,10 +25,6 @@ set(TCLWEBSOCKET_DEFINES -DUSE_TCL_STUBS=1
                           -DPACKAGE_NAME="${CMAKE_PROJECT_NAME}"
                           -DPACKAGE_VERSION="${CMAKE_PROJECT_VERSION}")
 
-#IF (MSVC)
-#	list(APPEND TCLGRAPHS_DEFINES -D_CRT_SECURE_NO_WARNINGS=1)
-#ENDIF()
-
 #
 # graphs Tcl extension
 #
@@ -55,6 +51,11 @@ enable_testing()
 add_test(
     NAME "client-connect"
     COMMAND ${TCL_TCLSH} tests/run.tcl -load $<TARGET_FILE:tclwebsocket> -dir ${CMAKE_CURRENT_BINARY_DIR} -files client-connect
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
+add_test(
+    NAME "client-io-text"
+    COMMAND ${TCL_TCLSH} tests/run.tcl -load $<TARGET_FILE:tclwebsocket> -dir ${CMAKE_CURRENT_BINARY_DIR} -files client-io
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 

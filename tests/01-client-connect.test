@@ -3,7 +3,7 @@
 if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
-    tcltest::configure -verbose {body pass start line error}
+    tcltest::configure -verbose {start body pass start line error}
 }
 
 if {[catch {package present tclwebsocket} ver]} {
