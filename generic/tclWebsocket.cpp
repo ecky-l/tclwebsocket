@@ -6,10 +6,10 @@
 #include <list>
 
 WebsocketClient::WebsocketClient(const char* host, int port, const char* path, int ssl)
-	:
-	m_name(_generate_name()),
-	m_lwsClient(host, port, path, ssl, this),
-	m_channel(Tcl_CreateChannel(&WSChannelType, m_name.c_str(), this, TCL_READABLE|TCL_WRITABLE)),
+    :
+    m_name(_generate_name()),
+    m_lwsClient(host, port, path, ssl, this),
+    m_channel(Tcl_CreateChannel(&WSChannelType, m_name.c_str(), this, TCL_READABLE|TCL_WRITABLE)),
     m_connected(false),
     m_blocking(true)
 {
@@ -41,14 +41,14 @@ bool WebsocketClient::blocking() const
 
 const std::string& WebsocketClient::name() const
 {
-	return m_name;
+    return m_name;
 }
 
 bool WebsocketClient::service()
 {
     using namespace std::chrono_literals;
 
-	m_lwsClient.service();
+    m_lwsClient.service();
 
     // wait for connection to be established in sync mode
     std::unique_lock<std::mutex> lock(m_mutex_connected);
@@ -71,7 +71,7 @@ void WebsocketClient::connected()
 
 void WebsocketClient::register_channel(Tcl_Interp* interp) const
 {
-	Tcl_RegisterChannel(interp, m_channel);
+    Tcl_RegisterChannel(interp, m_channel);
 }
 void WebsocketClient::unregister_channel(Tcl_Interp* interp) const
 {
@@ -82,15 +82,15 @@ void WebsocketClient::unregister_channel(Tcl_Interp* interp) const
 
 void WebsocketClient::shutdown()
 {
-	m_lwsClient.reset_wsi();
-	if (!m_lwsClient.is_shutting_down()) {
-		Tcl_NotifyChannel(m_channel, TCL_EXCEPTION);
-	}
+    m_lwsClient.reset_wsi();
+    if (!m_lwsClient.is_shutting_down()) {
+        Tcl_NotifyChannel(m_channel, TCL_EXCEPTION);
+    }
 }
 
 void WebsocketClient::add_input(void* in, int len)
 {
-	std::lock_guard<std::mutex> lock(m_mutex_input);
+    std::lock_guard<std::mutex> lock(m_mutex_input);
     auto& data = m_input.emplace_back(std::vector<char>(size_t(len)));
     memcpy(&data[0], in, len);
 
@@ -100,12 +100,12 @@ void WebsocketClient::add_input(void* in, int len)
     // there is no newline, [gets] will hang in an endless loop.
     // For binary data nothing must be appended.
     data.push_back('\n');
-	m_cond_input.notify_one();
+    m_cond_input.notify_one();
 }
 
 int WebsocketClient::get_input(char** buf, int toRead, int* errorCodePtr)
 {
-	std::unique_lock<std::mutex> lock(m_mutex_input);
+    std::unique_lock<std::mutex> lock(m_mutex_input);
     if (m_blocking) {
         m_cond_input.wait(lock, [&]() { return !m_input.empty(); });
     }
@@ -123,51 +123,51 @@ int WebsocketClient::get_input(char** buf, int toRead, int* errorCodePtr)
     // The only points where the lock is needed is when the std::list is modified.
     lock.unlock();
 
-	size_t read = 0;
-	while (!m_input.empty()) {
-		auto& first = m_input.front();
-		int len = first.size();
+    size_t read = 0;
+    while (!m_input.empty()) {
+        auto& first = m_input.front();
+        int len = first.size();
 
-		if ((read + len) > toRead) {
-			size_t toAdd = toRead - read;
-			size_t remaining = len - toAdd;
-			memcpy(*buf + read, &first[0], toAdd);
+        if ((read + len) > toRead) {
+            size_t toAdd = toRead - read;
+            size_t remaining = len - toAdd;
+            memcpy(*buf + read, &first[0], toAdd);
 
-			auto tmp = first;
+            auto tmp = first;
 
             lock.lock();
-			m_input.pop_front();
-			auto& data = m_input.emplace_front(std::vector<char>(remaining));
+            m_input.pop_front();
+            auto& data = m_input.emplace_front(std::vector<char>(remaining));
             lock.unlock();
 
             memcpy(&data[0], &tmp[toAdd], remaining);
-			break;
-		}
-		else {
-			memcpy(*buf + read, &first[0], len);
-			read += len;
+            break;
+        }
+        else {
+            memcpy(*buf + read, &first[0], len);
+            read += len;
 
             lock.lock();
             m_input.pop_front();
             lock.unlock();
-		}
-	}
+        }
+    }
 
-	return read;
+    return read;
 }
 
 bool WebsocketClient::has_input() const
 {
-	std::lock_guard<std::mutex> lock(m_mutex_input);
-	return !m_input.empty();
+    std::lock_guard<std::mutex> lock(m_mutex_input);
+    return !m_input.empty();
 }
 
 void WebsocketClient::add_output(const char* buf, size_t len)
 {
-	std::lock_guard<std::mutex> lock(m_mutex_output);
-	auto& data = m_output.emplace_back(std::vector<char>(LWS_PRE + len));
-	memcpy(&data[LWS_PRE], buf, len);
-	m_lwsClient.callback_on_writable();
+    std::lock_guard<std::mutex> lock(m_mutex_output);
+    auto& data = m_output.emplace_back(std::vector<char>(LWS_PRE + len));
+    memcpy(&data[LWS_PRE], buf, len);
+    m_lwsClient.callback_on_writable();
 }
 
 bool WebsocketClient::get_output(const char** buf, size_t* len) const
@@ -200,8 +200,8 @@ void WebsocketClient::next_output()
 
 std::string WebsocketClient::_generate_name()
 {
-	static int uid = 0;
-	std::stringstream ss;
-	ss << "websocket" << uid++;
-	return ss.str();
+    static int uid = 0;
+    std::stringstream ss;
+    ss << "websocket" << uid++;
+    return ss.str();
 }

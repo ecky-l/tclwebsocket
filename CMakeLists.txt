@@ -29,7 +29,7 @@ set(TCLWEBSOCKET_DEFINES -DUSE_TCL_STUBS=1
 # graphs Tcl extension
 #
 set(TCLWEBSOCKET_SOURCES generic/globals.cpp
-					   generic/tclWebsocket.cpp
+                       generic/tclWebsocket.cpp
                        generic/wsChannel.cpp
                        generic/lws.cpp
                        generic/websocketCmd.cpp
