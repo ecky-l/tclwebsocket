@@ -3,18 +3,16 @@ package require websocket 1.5.0
 
 websocket::loglevel warn
 
-Url_PrefixInstall /test/text [list ::ws::connect /test/text ::ws::test::text::handle]
+Url_PrefixInstall /cmd [list ::ws::connect /cmd ::ws::cmd::handle]
 
 namespace eval ::ws {
-    namespace eval test {
-        namespace eval text {
-            namespace eval Cmd {}
-        }
+    namespace eval cmd {
+        namespace eval Cmd {}
     }
 }
 
 
-proc ::ws::test::text::handle {sock type message} {
+proc ::ws::cmd::handle] {sock type message} {
     try {
         switch -glob -- $type {
             connect {
@@ -25,10 +23,10 @@ proc ::ws::test::text::handle {sock type message} {
                 websocket::send $sock text $message
             }
             disconnect {
-                puts "bye $sock"
+                puts "disconnected $sock"
             }
-            ping {
-                # ignore
+            close {
+                puts "closed $sock"
             }
         }
     } trap {} {err status} {
@@ -36,13 +34,13 @@ proc ::ws::test::text::handle {sock type message} {
     }
 }
 
-proc ::ws::test::text::ProcessMessage {sock message} {
+proc ::ws::cmd::ProcessMessage {sock message} {
     set cmd [string tol [string trim [lindex [split $message :] 0]]]
-    set args [lmap a [string trim [lindex [split $message :] 1]] {string trim $a}]
+    set args [lmap a [lindex [split $message :] 1] {string trim $a}]
     ::ws::test::text::Cmd::[set cmd] $sock {*}$args
 }
 
-proc ::ws::test::text::Cmd::remoteclose {sock args} {
+proc ::ws::cmd::Cmd::remoteclose {sock args} {
     websocket::close $sock
 }
 
