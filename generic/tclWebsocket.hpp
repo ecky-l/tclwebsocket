@@ -5,6 +5,9 @@
 #include <string>
 #include <tcl.h>
 #include <memory>
+#include <condition_variable>
+#include <list>
+#include <vector>
 
 #include "lws.hpp"
 

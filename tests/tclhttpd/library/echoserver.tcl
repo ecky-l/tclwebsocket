@@ -9,6 +9,9 @@ namespace eval ::ws {
     namespace eval echo {}
 }
 
+interp alias {} ::ws::echo::puts {} ::ws::puts
+
+
 proc ::ws::echo::handle {sock type message} {
     try {
         switch -glob -- $type {

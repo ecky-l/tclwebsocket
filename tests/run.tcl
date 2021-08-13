@@ -11,6 +11,10 @@
 package require tcltest
 namespace import ::tcltest::*
 
+# for running tclhttpd in worker thread
+package require Thread
+
+
 if {[llength $argv] != 0} {
     if {[dict exists $argv -files]} {
         tcltest::matchFiles *[dict get $argv -files].test
@@ -60,7 +64,8 @@ puts $chan "Tests began at [eval $timeCmd]"
 
 # run tclhttpd
 source [file join [file dirname [info script]] tclhttpd run-tclhttpd.tcl]
-start-tclhttpd
+set TclHttpdTid [start-tclhttpd-thread]
+
 
 # source each of the specified tests
 foreach file [lsort [::tcltest::getMatchingFiles]] {
@@ -76,7 +81,8 @@ proc tcltest::cleanupTestsHook {} {
     set ::exitCode [expr {$numTests(Failed) > 0}]
 }
 
-stop-tclhttpd
+stop-tclhttpd-thread $TclHttpdTid
+
 
 # cleanup
 puts $chan "\nTests ended at [eval $timeCmd]"

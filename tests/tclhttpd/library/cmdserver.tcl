@@ -11,6 +11,7 @@ namespace eval ::ws {
     }
 }
 
+interp alias {} ::ws::cmd::puts {} ::ws::puts
 
 proc ::ws::cmd::handle {sock type message} {
     try {

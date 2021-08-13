@@ -11,22 +11,25 @@ namespace eval ::ws {
     }
 }
 
+interp alias {} ::ws::test::ping::puts {} ::ws::puts
+
+
 proc ::ws::test::ping::handle {sock type message} {
     variable NPingPongs
 
     switch -glob -- $type {
         connect {
-            puts "connected $sock"
+            #puts "connected $sock"
             set NPingPongs($sock) 0
             websocket::send $sock ping
         }
         text {
         }
         disconnect {
-            puts "disconnected $sock"
+            #puts "disconnected $sock"
         }
         close {
-            puts "closed $sock"
+            #puts "closed $sock"
         }
         pong {
             incr NPingPongs($sock)
