@@ -11,6 +11,7 @@ WebsocketClient::WebsocketClient(const char* host, int port, const char* path, i
     m_lwsClient(host, port, path, ssl, this),
     m_channel(Tcl_CreateChannel(&WSChannelType, m_name.c_str(), this, TCL_READABLE|TCL_WRITABLE)),
     m_connected(false),
+    m_eof(false),
     m_blocking(true)
 {
 }
@@ -84,7 +85,9 @@ void WebsocketClient::shutdown()
 {
     m_lwsClient.reset_wsi();
     if (!m_lwsClient.is_shutting_down()) {
-        Tcl_NotifyChannel(m_channel, TCL_EXCEPTION);
+        std::lock_guard<std::mutex> lock(m_mutex_input);
+        m_eof = true;
+        m_cond_input.notify_one();
     }
 }
 
@@ -106,14 +109,26 @@ void WebsocketClient::add_input(void* in, int len)
 int WebsocketClient::get_input(char** buf, int toRead, int* errorCodePtr)
 {
     std::unique_lock<std::mutex> lock(m_mutex_input);
+
     if (m_blocking) {
-        m_cond_input.wait(lock, [&]() { return !m_input.empty(); });
+        m_cond_input.wait(lock, [&]() { return m_eof || !m_input.empty(); });
+
+        if (m_eof) {
+            // remote closed connection
+            return 0;
+        }
     }
     else {
-        // Nonblocking mode. Indicate to the tcl channel layer that no input
-        // is available by setting the errorCode to EAGAIN and return -1. This
-        // will lead to [fblocked] returning true.
-        if (m_input.empty()) {
+        // Nonblocking mode.
+
+        if (m_eof) {
+            // remote closed connection
+            return 0;
+        }
+        else if (m_input.empty()) {
+            // Indicate to the tcl channel layer that no input
+            // is available by setting the errorCode to EAGAIN and return -1. This
+            // will lead to [fblocked] returning true.
             *errorCodePtr = EAGAIN;
             return -1;
         }

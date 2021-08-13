@@ -49,7 +49,7 @@ private:
     mutable std::mutex m_mutex_connected;
     mutable std::condition_variable m_cond_connected;
     bool m_connected;
-
+    bool m_eof;
     bool m_blocking;
 
     mutable std::mutex m_mutex_input;

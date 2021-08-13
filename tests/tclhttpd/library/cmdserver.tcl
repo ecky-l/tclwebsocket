@@ -18,9 +18,8 @@ proc ::ws::cmd::handle {sock type message} {
             connect {
             }
             text {
-                ProcessMessage $sock $message
                 puts "Received $message on sock $sock"
-                websocket::send $sock text $message
+                ProcessMessage $sock $message
             }
             disconnect {
                 puts "disconnected $sock"

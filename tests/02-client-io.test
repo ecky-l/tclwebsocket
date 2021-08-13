@@ -44,3 +44,21 @@ test client-io-text-nonblocking "websocket client text io in non-blocking mode" 
     }
     lappend result $v
 } -cleanup $closeSock -result {-1 1 hello}
+
+tcltest::test client-io-eof-blocking "client checks eof in blocking mode" -setup $connectCmd -body {
+    fconfigure $sock -buffering line
+    puts $sock "remoteclose"
+    list [gets $sock v] [eof $sock] $v
+} -cleanup $closeSock -result {-1 1 {}}
+
+tcltest::test client-io-eof-nonblocking "client checks eof in nonblocking mode" -setup $connectCmd -body {
+    fconfigure $sock -buffering line -blocking 0
+    puts $sock "remoteclose"
+    set r [gets $sock v]
+    set e 0
+    while {$r < 0 && ! $e} {
+        set r [gets $sock v]
+        set e [eof $sock]
+    }
+    list $r $e $v
+} -cleanup $closeSock -result {-1 1 {}}
