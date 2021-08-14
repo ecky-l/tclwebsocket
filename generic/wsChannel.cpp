@@ -1,4 +1,4 @@
-#include "wschannel.hpp"
+#include "wsChannel.hpp"
 
 #include <thread>
 

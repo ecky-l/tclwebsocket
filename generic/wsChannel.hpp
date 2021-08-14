@@ -1,7 +1,7 @@
 #ifndef WEBSOCKETSCHANNEL_H
 #define WEBSOCKETSCHANNEL_H
 
-#include "tclwebsocket.hpp"
+#include "tclWebsocket.hpp"
 
 int WebsocketCloseProc(ClientData instanceData, Tcl_Interp* interp);
 int WebsocketInputProc(ClientData instanceData, char* buf, int toRead, int* errorCodePtr);
@@ -15,7 +15,7 @@ int WebsocketFlushProc(ClientData instanceData);
 int WebsocketHandlerProc(ClientData instanceData, int interestMask);
 
 static Tcl_ChannelType WSChannelType = {
-    .typeName = "websocket",
+    .typeName = (char*)"websocket",
     .version = TCL_CHANNEL_VERSION_5,
     .closeProc = WebsocketCloseProc,
     .inputProc = WebsocketInputProc,

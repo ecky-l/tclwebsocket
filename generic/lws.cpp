@@ -3,7 +3,7 @@
 #include <functional>
 
 #include "lws.hpp"
-#include "tclwebsocket.hpp"
+#include "tclWebsocket.hpp"
 
 static int
 callback_minimal(struct lws* wsi, enum lws_callback_reasons reason, void* user, void* in, size_t len);

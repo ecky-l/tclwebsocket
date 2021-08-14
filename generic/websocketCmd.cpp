@@ -1,6 +1,6 @@
 
 #include <tcl.h>
-#include "tclwebsocket.hpp"
+#include "tclWebsocket.hpp"
 
 #include <sstream>
 

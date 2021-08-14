@@ -1,6 +1,6 @@
 
-#include "tclwebsocket.hpp"
-#include "wschannel.hpp"
+#include "tclWebsocket.hpp"
+#include "wsChannel.hpp"
 
 #include <sstream>
 #include <list>
