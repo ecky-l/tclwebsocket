@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.16)
 #set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 # set the project name
-project(tclwebsocket VERSION 0.0.1)
+project(tclwebsocket VERSION 0.1.0)
 
 find_package(TCL)
 find_package(Tclsh)
