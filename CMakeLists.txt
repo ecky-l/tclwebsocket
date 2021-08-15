@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 #file(TO_CMAKE_PATH "$ENV{HOME}/.local/libwebsockets/cmake" LWS_CMAKE_DIR)
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake" ${CMAKE_MODULE_PATH})
+#set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 # set the project name
 project(tclwebsocket VERSION 0.0.1)
@@ -10,9 +10,37 @@ find_package(TCL)
 find_package(Tclsh)
 find_package(TclStub)
 find_package(OpenSSL)
-find_package(LibWebSockets)
+#find_package(LibWebSockets)
+#find_package(libwebsockets)
 
 set(CMAKE_CXX_STANDARD 20)
+
+#
+# Build libwebsockets first from git submodule.
+#
+# Linking against libwebsockets dynamic lib has some problems:
+# 
+# * on windows, there is not yet an easy way for users to install a libwebsockets dll in
+#   any version. Neither there is a chocolatey package nor a clickable MSI. So, windows
+#   users would have to compile it from source, which might be painful or impossible.
+# * on linux and macos, there are libwebsockets packages in package managers. But the
+#   version and the configuration does highly depend on the distribution and on how the
+#   package was configured at built time. If the package manager delivers an older version
+#   of libwebsockets, there might be features missing that are needed by us.
+#   Likewise, if the package was configured in a way that does not work for us - this is a
+#   particular problem with the event loop plugins in libwebsockets.
+#
+# To get around these problems, we build and link libwebsockets statically from a git submodule.
+#
+option(LWS_OPENSSL_LIBRARIES "LWS openssl libraries" OFF)
+option(LWS_OPENSSL_INCLUDE_DIRS "LWS openssl include dirs" OFF)
+option(LWS_WITH_STATIC OFF)
+set(LWS_OPENSSL_LIBRARIES "${OPENSSL_LIBRARIES}")
+set(LWS_OPENSSL_INCLUDE_DIRS ${OPENSSL_INCLUDE_DIR})
+set(LWS_WITH_STATIC true)
+add_subdirectory(libwebsockets)
+set(LIBWEBSOCKETS_INCLUDE_DIR "libwebsockets/include")
+set(LIBWEBSOCKETS_LIBRARIES websockets)
 
 #
 # Common defines for all project targets
