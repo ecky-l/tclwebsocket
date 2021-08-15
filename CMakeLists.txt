@@ -38,15 +38,17 @@ option(LWS_WITH_STATIC OFF)
 set(LWS_OPENSSL_LIBRARIES "${OPENSSL_LIBRARIES}")
 set(LWS_OPENSSL_INCLUDE_DIRS ${OPENSSL_INCLUDE_DIR})
 set(LWS_WITH_STATIC true)
+
+set(LIBWEBSOCKETS_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/libwebsockets/include")
+include_directories(${LIBWEBSOCKETS_INCLUDE_DIR})
 add_subdirectory(libwebsockets)
-set(LIBWEBSOCKETS_INCLUDE_DIR "libwebsockets/include")
+
 set(LIBWEBSOCKETS_LIBRARIES websockets)
 
 #
 # Common defines for all project targets
 #
 include_directories(${TCL_INCLUDE_PATH}
-                    ${LIBWEBSOCKETS_INCLUDE_DIR}
                     ${OPENSSL_INCLUDE_DIR}
 )
 set(TCLWEBSOCKET_DEFINES -DUSE_TCL_STUBS=1
