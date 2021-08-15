@@ -10,11 +10,10 @@ find_package(TCL)
 find_package(Tclsh)
 find_package(TclStub)
 find_package(OpenSSL)
-#find_package(LibWebSockets)
-#find_package(libwebsockets)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_POSITION_INDEPENDENT_CODE true)
+
 #
 # Build libwebsockets first from git submodule.
 #
@@ -26,11 +25,12 @@ set(CMAKE_POSITION_INDEPENDENT_CODE true)
 # * on linux and macos, there are libwebsockets packages in package managers. But the
 #   version and the configuration does highly depend on the distribution and on how the
 #   package was configured at built time. If the package manager delivers an older version
-#   of libwebsockets, there might be features missing that are needed by us.
-#   Likewise, if the package was configured in a way that does not work for us - this is a
-#   particular problem with the event loop plugins in libwebsockets.
+#   of libwebsockets, there might be features missing that we need or, worse, work differently.
+#   Likewise if the package was configured in a way that does not work for us - this is a
+#   particular problem with the lws event loop plugins.
 #
-# To get around these problems, we build and link libwebsockets statically from a git submodule.
+# To get around these problems, we build and link libwebsockets statically from a git
+# submodule with fixed commit hash. The commit is currently set at version v4.2.1
 #
 option(LWS_OPENSSL_LIBRARIES "LWS openssl libraries" OFF)
 option(LWS_OPENSSL_INCLUDE_DIRS "LWS openssl include dirs" OFF)
