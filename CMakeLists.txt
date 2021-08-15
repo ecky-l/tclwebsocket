@@ -14,7 +14,7 @@ find_package(OpenSSL)
 #find_package(libwebsockets)
 
 set(CMAKE_CXX_STANDARD 20)
-
+set(CMAKE_POSITION_INDEPENDENT_CODE true)
 #
 # Build libwebsockets first from git submodule.
 #
@@ -35,9 +35,11 @@ set(CMAKE_CXX_STANDARD 20)
 option(LWS_OPENSSL_LIBRARIES "LWS openssl libraries" OFF)
 option(LWS_OPENSSL_INCLUDE_DIRS "LWS openssl include dirs" OFF)
 option(LWS_WITH_STATIC OFF)
+option(LWS_WITH_SHARED OFF)
 set(LWS_OPENSSL_LIBRARIES "${OPENSSL_LIBRARIES}")
 set(LWS_OPENSSL_INCLUDE_DIRS ${OPENSSL_INCLUDE_DIR})
 set(LWS_WITH_STATIC true)
+set(LWS_WITH_SHARED false)
 
 set(LIBWEBSOCKETS_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/libwebsockets/include")
 include_directories(${LIBWEBSOCKETS_INCLUDE_DIR})
