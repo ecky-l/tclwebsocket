@@ -11,7 +11,7 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  tclwebsocket-master:
+  tclwebsocket-master-linux:
     # The CMake configure and build commands are platform agnostic and should work equally
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
@@ -23,14 +23,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install tcl-dev tcllib tcl-thread fossil
-      - name: Get tclhttpd for tests
-        run: |
-          mkdir ${{github.workspace}}/tclhttpd && cd ${{github.workspace}}/tclhttpd
-          fossil clone https://core.tcl-lang.org/tclhttpd tclhttpd.fossil
-          fossil open tclhttpd.fossil
-          cd -
-      - uses: actions/checkout@v2
-      - name: submodules-init
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Submodule update
         uses: snickerbockers/submodules-init@v4
 
       - name: Configure CMake
@@ -42,9 +37,17 @@ jobs:
         # Build your program with the given configuration
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
+      - name: Get tclhttpd for tests
+        run: |
+          mkdir ${{github.workspace}}/tclhttpd
+          cd ${{github.workspace}}/tclhttpd
+          fossil clone https://core.tcl-lang.org/tclhttpd tclhttpd.fossil
+          fossil open tclhttpd.fossil
+          cd -
       - name: Test
         working-directory: ${{github.workspace}}/build
-        env:
-          TCLHTTPD_HOME: ${{github.workspace}}/tclhttpd
-        run: ctest -C ${{env.BUILD_TYPE}} --verbose
+        #env:
+        #  TCLHTTPD_HOME: ${{github.workspace}}/tclhttpd
+        run: |
+          TCLHTTPD_HOME=${{github.workspace}}/tclhttpd ctest -C ${{env.BUILD_TYPE}} --verbose
       
