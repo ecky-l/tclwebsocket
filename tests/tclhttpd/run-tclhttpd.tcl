@@ -6,7 +6,11 @@ set PWD [file dirname [info script]]
 
 
 proc start-tclhttpd-thread {} {
-    global PWD
+    global PWD env
+    if {![info exists env(TCLHTTPD_HOME)]} {
+        throw {START_TCLHTTPD THREAD} "Cannot start tclhttpd, the TCLHTTPD_HOME variable is not set!"
+    }
+
     append script [list set tclHttpdLib [file join $PWD library]] \n
     append script [list set docRoot [file join $PWD data]] \n
     append script {
@@ -16,9 +20,13 @@ proc start-tclhttpd-thread {} {
     set tid [thread::create $script]
     puts "tclhttp starting..."
     after 2000
-    while {[catch {socket localhost 8015} sock]} {
+    set i 0
+    for {} {[catch {socket localhost 8015} sock] && $i < 5} {incr i} {
         puts "tclhttp still starting..."
         after 1000
+    }
+    if {$i >= 5} {
+        throw {START_TCLHTTPD THREAD} "Cannot start tclhttpd!"
     }
     close $sock
     return $tid
