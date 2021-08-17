@@ -52,12 +52,10 @@ jobs:
           key: tclhttpd
       - name: Get tclhttpd for tests
         if: steps.cache-tclhttpd.outputs.cache-hit != 'true'
-        run: |
-          mkdir ${{github.workspace}}/tclhttpd
-          cd ${{github.workspace}}/tclhttpd
-          fossil clone https://core.tcl-lang.org/tclhttpd tclhttpd.fossil
-          fossil open tclhttpd.fossil
-          cd -
+        uses: actions/checkout@v2
+        with:
+          repository: tcl-mirror/tclhttpd.git
+          path: ${{ github.workspace }}/tclhttpd
       - name: Test
         working-directory: ${{github.workspace}}/build
         env:
