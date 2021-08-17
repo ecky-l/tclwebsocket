@@ -26,7 +26,7 @@ jobs:
             sudo apt-get install tcl-dev tcllib tcl-thread fossil
           elif [ "$RUNNER_OS" == "Windows" ]; then
             choco install -y magicsplat-tcl-tk --install-arguments="ALLUSERS=1 APPLICATIONFOLDER=C:\Progra~1\Tcl"
-            choco install -y fossil
+            choco install -y fossil openssl
           elif [ "$RUNNER_OS" == "macOS" ]; then
             brew install tcl tcl-thread tcllib fossil
           fi
