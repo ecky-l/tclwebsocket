@@ -60,5 +60,7 @@ jobs:
       - name: Test
         working-directory: ${{github.workspace}}/build
         run: |
-          TCLHTTPD_HOME=${{github.workspace}}/tclhttpd ctest -C ${{env.BUILD_TYPE}} --verbose
+          ctest -C ${{env.BUILD_TYPE}} --verbose
+        env:
+          TCLHTTPD_HOME: ${{github.workspace}}/tclhttpd
       
