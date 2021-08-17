@@ -11,21 +11,21 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  tclwebsocket-master-linux:
-    # The CMake configure and build commands are platform agnostic and should work equally
-    # well on Windows or Mac.  You can convert this to a matrix build if you need
-    # cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-latest
+  tclwebsocket-master:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
 
     steps:
-      - name: Install tcl-dev and dependencies
+      - name: Install Tcl and dependencies
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo apt-get update
             sudo apt-get install tcl-dev tcllib tcl-thread fossil
           elif [ "$RUNNER_OS" == "Windows" ]; then
-            choco install -y magicsplat-tcl-tk fossil
+            choco install -y magicsplat-tcl-tk --install-arguments="ALLUSERS=1 APPLICATIONFOLDER=C:\Progra~1\Tcl"
+            choco install -y fossil
           elif [ "$RUNNER_OS" == "macOS" ]; then
             brew install tcl tcl-thread tcllib fossil
           fi
