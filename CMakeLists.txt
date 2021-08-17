@@ -14,6 +14,14 @@ find_package(OpenSSL)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_POSITION_INDEPENDENT_CODE true)
 
+if (WIN32)
+    # sometimes, expecially on the github windows runners, there
+    # is a different tclsh on the path than we want. This is a
+    # problem with the tests
+    get_filename_component(TCL_HOME "${TCL_INCLUDE_PATH}" PATH)
+    set(TCL_TCLSH "${TCL_HOME}/bin/tclsh.exe")
+endif()
+
 #
 # Build libwebsockets first from git submodule.
 #
