@@ -19,6 +19,7 @@ jobs:
 
     steps:
       - name: Install Tcl and dependencies
+        shell: bash
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo apt-get update
