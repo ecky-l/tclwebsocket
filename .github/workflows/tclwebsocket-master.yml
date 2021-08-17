@@ -1,4 +1,4 @@
-name: tclwebsocket
+name: tclwebsocket-master
 
 on:
   push:
@@ -21,8 +21,14 @@ jobs:
     steps:
       - name: Install tcl-dev and dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install tcl-dev tcllib tcl-thread fossil
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get update
+            sudo apt-get install tcl-dev tcllib tcl-thread fossil
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            choco install -y magicsplat-tcl-tk fossil
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            brew install tcl tcl-thread tcllib fossil
+          fi
       - name: Checkout
         uses: actions/checkout@v2
       - name: Submodule update
