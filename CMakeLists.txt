@@ -9,6 +9,10 @@ project(tclwebsocket VERSION 0.1.0)
 find_package(TCL)
 find_package(Tclsh)
 find_package(TclStub)
+
+if (APPLE)
+    set(OPENSSL_ROOT_DIR "/usr/local/opt/openssl")
+endif()
 find_package(OpenSSL)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -20,6 +24,9 @@ if (WIN32)
     # problem with the tests
     get_filename_component(TCL_HOME "${TCL_INCLUDE_PATH}" PATH)
     set(TCL_TCLSH "${TCL_HOME}/bin/tclsh.exe")
+elseif(APPLE)
+    # Default tcl is too old on github runners. Use the brew installation
+    set(TCL_TCLSH "/usr/local/opt/tcl-tk/bin/tclsh")
 endif()
 
 #
@@ -65,7 +72,7 @@ set(TCLWEBSOCKET_DEFINES -DUSE_TCL_STUBS=1
                           -DPACKAGE_VERSION="${CMAKE_PROJECT_VERSION}")
 
 #
-# graphs Tcl extension
+# websocket Tcl extension
 #
 set(TCLWEBSOCKET_SOURCES generic/globals.cpp
                        generic/tclWebsocket.cpp
