@@ -30,9 +30,9 @@ Tclwebsocket is well suited if you like the standard way of channel communicatio
 There should be frequent releases even if not all features are implemented. Here is a list of the total feature set that are to be implemented in total. The ones that are already implemented, are marked with a checkmark &#x1F5F9;. Features that not yet implemented, but are on the list, are marked with a not-checked-mark &#x237B;. All other features are not planned yet. However, the list is probably not complete and subject to change in the future.
 
 * client websocket
-  	* &#x1F5F9; connect to websocket servers normal and ssl
-	* &#x1F5F9; *text* data IO servers
-	* &#x1F5F9; blocking and non-blocking IO
+  	* &#x2713; connect to websocket servers normal and ssl
+	* &#x2713; *text* data IO
+	* &#x2713; blocking and non-blocking IO
 	* &#x237B; *binary* data IO (*fconfigure -transmission binary*)
 	* &#x237B; *-async* Option and file events
 	* &#x237B; ssl cert client authentication
@@ -47,10 +47,17 @@ There should be frequent releases even if not all features are implemented. Here
 	- &#x237B; keepalive ping/pong on driver layer
 	- &#x237B; automatic reconnect on driver layer
 	
+## Installation
+
+There are bre built packages for Windows x64, Linux x64 and macOS. They can be downloaded [here](https://github.com/ecky-l/tclwebsocket/releases) from the releases page. A development build is generated for each push to master. To install the package, extract the archive and drop the resulting directory somewhere on your *auto\_path*.
+
+Installation can also be performed after a build from sources, which is described below.
 
 ## Building tclwebsocket
 
-This is a [cmake](https://cmake.org/) C++ project. To build it you will need cmake and a normal C++ compiler with support for C++-17. All recent C++ compilers should do that. Furthermore you need [openssl](https://www.openssl.org/) and [Tcl](https://www.tcl-lang.org/) installed for dependencies, together with their devel files (headers and linkable libs). [Libwebsockets](https://libwebsockets.org/) comes as a git submodule with the project, it is compiled with tclwebsocket and statically linked.
+This is a [cmake](https://cmake.org/) C++ project. To build it you will need cmake and a normal C++ compiler with support for C++-17. All recent C++ compilers should do that. Furthermore you need [openssl](https://www.openssl.org/) and [Tcl](https://www.tcl-lang.org/) installed for dependencies, together with their devel files (headers and linkable libs). [Libwebsockets](https://libwebsockets.org/) comes as a git submodule with the project, it is compiled with tclwebsocket and statically linked. See the CMakeLists.txt file for a description why a shared library is not really an option.
+
+The steps described below can also be followed in the github actions based [workflow](https://github.com/ecky-l/tclwebsocket/blob/master/.github/workflows/tclwebsocket-master.yml) for the master build.
 
 ### Install the dependencies
 
