@@ -1,3 +1,4 @@
+---
 name: tclwebsocket-master
 
 on:
@@ -11,7 +12,7 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  tclwebsocket-master:
+  build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -47,6 +48,7 @@ jobs:
         with:
           path: ${{github.workspace}}/tclhttpd
           key: tclhttpd
+
       - name: Get tclhttpd for tests
         if: steps.cache-tclhttpd.outputs.cache-hit != 'true'
         uses: actions/checkout@v2
@@ -54,9 +56,40 @@ jobs:
           repository: tcl-mirror/tclhttpd.git
           ref: master
           path: ${{ github.workspace }}/tclhttpd
+
       - name: Test
         working-directory: ${{github.workspace}}/build
         env:
           TCLHTTPD_HOME: ${{github.workspace}}/tclhttpd
         run: ctest -C ${{env.BUILD_TYPE}} --verbose
+
+      - name: Package
+        working-directory: ${{github.workspace}}/build
+        run: cpack -C ${{env.BUILD_TYPE}}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ runner.os }}
+          path: ${{github.workspace}}/build/packages
+          if-no-files-found: error
       
+  prerelease:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v2
+
+      - name: Deploy latest Prerelease
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Latest Development Build"
+          files: |
+            Linux/*.tar.gz
+            macOS/*.tar.gz
+            Windows/*.zip
+...
