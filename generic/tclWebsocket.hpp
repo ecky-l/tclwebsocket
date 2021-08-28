@@ -50,8 +50,8 @@ public:
     bool get_output(const char** buf, size_t* len) const;
     void next_output();
 
-    void set_transmission(const enum class WsTransmission transmission);
-    const enum class WsTransmission get_transmission() const;
+    void set_transmission(const WsTransmission transmission);
+    const WsTransmission get_transmission() const;
 private:
     const std::string m_name;
     LwsClient m_lwsClient;

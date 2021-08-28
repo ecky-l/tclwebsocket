@@ -215,12 +215,12 @@ void WebsocketClient::next_output()
     }
 }
 
-void WebsocketClient::set_transmission(const enum class WsTransmission transmission)
+void WebsocketClient::set_transmission(const WsTransmission transmission)
 {
     m_transmission = transmission;
 }
 
-const enum class WsTransmission WebsocketClient::get_transmission() const
+const WsTransmission WebsocketClient::get_transmission() const
 {
     return m_transmission;
 }

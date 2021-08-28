@@ -1,6 +1,8 @@
 #include "wsChannel.hpp"
 
 #include <thread>
+#include <string>
+#include <sstream>
 
 int WebsocketCloseProc(ClientData instanceData, Tcl_Interp* interp)
 {
