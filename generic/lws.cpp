@@ -13,6 +13,8 @@ static const struct lws_protocols _protocols[] = {
     { NULL, NULL, 0, 0 }
 };
 
+#define WSPTR_TRANSMISSION_LWS_FLAG(wsPtr) (wsPtr->get_transmission() == WsTransmission::TEXT ? LWS_WRITE_TEXT : LWS_WRITE_BINARY)
+
 static int
 callback_minimal(struct lws* wsi, enum lws_callback_reasons reason, void* user, void* in, size_t len)
 {
@@ -39,7 +41,7 @@ callback_minimal(struct lws* wsi, enum lws_callback_reasons reason, void* user, 
         const char* buf;
         size_t len = 0;
         if (wsPtr->get_output(&buf, &len)) {
-            int written = lws_write(wsi, ((unsigned char*)buf), len, LWS_WRITE_TEXT);
+            int written = lws_write(wsi, ((unsigned char*)buf), len, WSPTR_TRANSMISSION_LWS_FLAG(wsPtr));
             if (written < len) {
                 // TODO error handling
             }

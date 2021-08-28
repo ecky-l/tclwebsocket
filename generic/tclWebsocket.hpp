@@ -11,6 +11,12 @@
 
 #include "lws.hpp"
 
+enum class WsTransmission
+{
+    TEXT,
+    BINARY
+};
+
 class WebsocketClient
 {
 public:
@@ -44,6 +50,8 @@ public:
     bool get_output(const char** buf, size_t* len) const;
     void next_output();
 
+    void set_transmission(const enum class WsTransmission transmission);
+    const enum class WsTransmission get_transmission() const;
 private:
     const std::string m_name;
     LwsClient m_lwsClient;
@@ -54,6 +62,8 @@ private:
     bool m_connected;
     bool m_eof;
     bool m_blocking;
+
+    WsTransmission m_transmission;
 
     mutable std::mutex m_mutex_input;
     std::condition_variable m_cond_input;

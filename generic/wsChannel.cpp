@@ -26,11 +26,38 @@ int WebsocketOutputProc(ClientData instanceData, CONST84 char* buf, int toWrite,
 
 int WebsocketSetOptionProc(ClientData instanceData, Tcl_Interp* interp, const char* optionName, const char* value)
 {
+    auto wsPtr = (WebsocketClient*)instanceData;
+    if (std::string("-transmission").compare(optionName) == 0) {
+        if (std::string("binary").compare(0, strlen(value), value, 1) == 0) {
+            wsPtr->set_transmission(WsTransmission::BINARY);
+        }
+        else if (std::string("text").compare(0, strlen(value), value, 1) == 0) {
+            wsPtr->set_transmission(WsTransmission::TEXT);
+        }
+        else {
+            std::stringstream ss;
+            ss << "Wrong value for -transmission: " << value << ". Must be \"text\" or \"binary\"";
+            Tcl_SetObjResult(interp, Tcl_NewStringObj(ss.str().c_str(), -1));
+            return TCL_ERROR;
+        }
+    }
     return TCL_OK;
 }
 
+#define WSPTR_GET_TRANSMISSION_STR(wsPtr) (wsPtr->get_transmission() == WsTransmission::TEXT ? "text" : "binary")
+
 int WebsocketGetOptionProc(ClientData instanceData, Tcl_Interp* interp, CONST84 char* optionName, Tcl_DString* dsPtr)
 {
+    auto wsPtr = (WebsocketClient*)instanceData;
+    if (optionName == nullptr) {
+        Tcl_DStringAppendElement(dsPtr, "-transmission");
+        Tcl_DStringAppendElement(dsPtr, WSPTR_GET_TRANSMISSION_STR(wsPtr));
+    }
+    else {
+        if (std::string("-transmission").compare(optionName) == 0) {
+            Tcl_DStringAppend(dsPtr, WSPTR_GET_TRANSMISSION_STR(wsPtr), -1);
+        }
+    }
     return TCL_OK;
 }
 

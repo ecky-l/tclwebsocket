@@ -12,7 +12,8 @@ WebsocketClient::WebsocketClient(const char* host, int port, const char* path, i
     m_channel(Tcl_CreateChannel(&WSChannelType, m_name.c_str(), this, TCL_READABLE|TCL_WRITABLE)),
     m_connected(false),
     m_eof(false),
-    m_blocking(true)
+    m_blocking(true),
+    m_transmission(WsTransmission::TEXT)
 {
 }
 
@@ -213,6 +214,17 @@ void WebsocketClient::next_output()
         m_lwsClient.callback_on_writable();
     }
 }
+
+void WebsocketClient::set_transmission(const enum class WsTransmission transmission)
+{
+    m_transmission = transmission;
+}
+
+const enum class WsTransmission WebsocketClient::get_transmission() const
+{
+    return m_transmission;
+}
+
 
 std::string WebsocketClient::_generate_name()
 {

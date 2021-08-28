@@ -21,6 +21,10 @@ proc ::ws::echo::handle {sock type message} {
                 puts "Received $message on sock $sock"
                 websocket::send $sock text [string trimr $message]
             }
+            binary {
+                puts "Received binary data with size [string length $message] on sock $sock"
+                websocket::send $sock binary $message
+            }
             disconnect {
                 puts "disconnected $sock"
             }
