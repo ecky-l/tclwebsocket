@@ -62,3 +62,10 @@ tcltest::test eof-nonblocking "client checks eof in nonblocking mode" -setup $co
     }
     list $r $e $v
 } -cleanup $closeSock -result {-1 1 {}}
+
+tcltest::test text-buffer-small "buffer is smaller than text" -setup $connectEcho -body {
+    fconfigure $sock -buffering line -buffersize 20
+    puts $sock [string repeat + 22]
+    list [gets $sock v] $v
+} -cleanup $closeSock -result [list 22 [string repeat + 22]] -constraints knownBug
+
