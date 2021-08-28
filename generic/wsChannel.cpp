@@ -41,6 +41,12 @@ int WebsocketSetOptionProc(ClientData instanceData, Tcl_Interp* interp, const ch
             return TCL_ERROR;
         }
     }
+    else {
+        std::stringstream ss;
+        ss << "No such option " << optionName;
+        Tcl_SetObjResult(interp, Tcl_NewStringObj(ss.str().c_str(), -1));
+        return TCL_ERROR;
+    }
     return TCL_OK;
 }
 
@@ -56,6 +62,12 @@ int WebsocketGetOptionProc(ClientData instanceData, Tcl_Interp* interp, CONST84 
     else {
         if (std::string("-transmission").compare(optionName) == 0) {
             Tcl_DStringAppend(dsPtr, WSPTR_GET_TRANSMISSION_STR(wsPtr), -1);
+        }
+        else {
+            std::stringstream ss;
+            ss << "No such option " << optionName;
+            Tcl_SetObjResult(interp, Tcl_NewStringObj(ss.str().c_str(), -1));
+            return TCL_ERROR;
         }
     }
     return TCL_OK;

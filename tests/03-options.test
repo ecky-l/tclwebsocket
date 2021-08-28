@@ -1,0 +1,45 @@
+## 03-options.test (created by Tloona here)
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+    tcltest::configure -verbose {start body pass start line error}
+}
+
+if {[catch {package present tclwebsocket} ver]} {
+    source [file join [file dirname [info script]] loadpackage.tcl]
+}
+
+#### fixtures
+set connectEcho {
+    set sock [websocket localhost 8015 /echo]
+}
+set closeSock {
+    close $sock
+}
+#### /fixtures
+
+tcltest::test get-all "get all options" -setup $connectEcho -body {
+    dict filter [fconfigure $sock] key -transmission
+} -cleanup $closeSock -result {-transmission text}
+
+tcltest::test get-invalid-option "get invalid option throws" -setup $connectEcho -body {
+    fconfigure $sock -blabla
+} -cleanup $closeSock -returnCodes error -result {No such option -blabla}
+
+tcltest::test get-transmission "get the transmission option" -setup $connectEcho -body {
+    fconfigure $sock -transmission
+} -cleanup $closeSock -result text
+
+tcltest::test configure-invalid-option "configure invalid option throws" -setup $connectEcho -body {
+    fconfigure $sock -blabla balla
+} -cleanup $closeSock -returnCodes error -result {No such option -blabla}
+
+tcltest::test configure-transmission "configure the transmission" -setup $connectEcho -body {
+    lappend res [fconfigure $sock -transmission]
+    fconfigure $sock -transmission b
+    lappend res [fconfigure $sock -transmission]
+    fconfigure $sock -transmission t
+    lappend res [fconfigure $sock -transmission]
+} -cleanup [list $closeSock ; unset -nocomplain res ] -result {text binary text}
+
