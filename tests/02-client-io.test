@@ -21,13 +21,13 @@ set closeSock {
 }
 #### /fixtures
 
-test client-io-text-normal "client text io in blocking mode, normal" -setup $connectEcho -body {
+test text-normal "client text io in blocking mode, normal" -setup $connectEcho -body {
     fconfigure $sock -buffering line
     puts $sock hello
     gets $sock
 } -cleanup $closeSock -result hello
 
-test client-io-text-blocks "client text io in blocking mode blocks until input arrives" \
+test text-blocks "client text io in blocking mode blocks until input arrives" \
         -setup $connectCmd -body {
     fconfigure $sock -buffering line
     puts $sock "echoafter: 2000 hello"
@@ -35,7 +35,7 @@ test client-io-text-blocks "client text io in blocking mode blocks until input a
     expr $t >= 2000000
 } -cleanup $closeSock -result 1
 
-test client-io-text-nonblocking "websocket client text io in non-blocking mode" -setup $connectEcho -body {
+test text-nonblocking "websocket client text io in non-blocking mode" -setup $connectEcho -body {
     fconfigure $sock -buffering line -blocking 0
     lappend result [gets $sock v] [fblocked $sock]
     puts $sock hello
@@ -45,13 +45,13 @@ test client-io-text-nonblocking "websocket client text io in non-blocking mode" 
     lappend result $v
 } -cleanup $closeSock -result {-1 1 hello}
 
-tcltest::test client-io-eof-blocking "client checks eof in blocking mode" -setup $connectCmd -body {
+tcltest::test eof-blocking "client checks eof in blocking mode" -setup $connectCmd -body {
     fconfigure $sock -buffering line
     puts $sock "remoteclose"
     list [gets $sock v] [eof $sock] $v
 } -cleanup $closeSock -result {-1 1 {}}
 
-tcltest::test client-io-eof-nonblocking "client checks eof in nonblocking mode" -setup $connectCmd -body {
+tcltest::test eof-nonblocking "client checks eof in nonblocking mode" -setup $connectCmd -body {
     fconfigure $sock -buffering line -blocking 0
     puts $sock "remoteclose"
     set r [gets $sock v]

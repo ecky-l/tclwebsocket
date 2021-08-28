@@ -147,6 +147,7 @@ int WebsocketClient::get_input(char** buf, int toRead, int* errorCodePtr)
             size_t toAdd = toRead - read;
             size_t remaining = len - toAdd;
             memcpy(*buf + read, &first[0], toAdd);
+            read += toAdd;
 
             auto tmp = first;
 
