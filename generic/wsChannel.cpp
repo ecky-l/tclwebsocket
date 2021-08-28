@@ -28,10 +28,11 @@ int WebsocketSetOptionProc(ClientData instanceData, Tcl_Interp* interp, const ch
 {
     auto wsPtr = (WebsocketClient*)instanceData;
     if (std::string("-transmission").compare(optionName) == 0) {
-        if (std::string("binary").compare(0, strlen(value), value, 1) == 0) {
+        size_t strLen = strlen(value);
+        if (std::string("binary").compare(0, strLen, value, strLen) == 0) {
             wsPtr->set_transmission(WsTransmission::BINARY);
         }
-        else if (std::string("text").compare(0, strlen(value), value, 1) == 0) {
+        else if (std::string("text").compare(0, strLen, value, strLen) == 0) {
             wsPtr->set_transmission(WsTransmission::TEXT);
         }
         else {

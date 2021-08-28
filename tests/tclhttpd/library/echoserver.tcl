@@ -1,5 +1,6 @@
 ## kraken-ws.tcl (created by Tloona here)
 package require websocket 1.5.0
+package require sha256 1.0.4
 
 websocket::loglevel warn
 
@@ -13,6 +14,7 @@ interp alias {} ::ws::echo::puts {} ::ws::puts
 
 
 proc ::ws::echo::handle {sock type message} {
+    puts wwwwww,$type
     try {
         switch -glob -- $type {
             connect {
@@ -23,7 +25,7 @@ proc ::ws::echo::handle {sock type message} {
             }
             binary {
                 puts "Received binary data with size [string length $message] on sock $sock"
-                websocket::send $sock binary $message
+                websocket::send $sock text [sha2::sha256 -hex -- $message]
             }
             disconnect {
                 puts "disconnected $sock"

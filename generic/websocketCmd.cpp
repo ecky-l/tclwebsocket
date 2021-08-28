@@ -62,7 +62,7 @@ WebsocketCmd(ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* const
         objv++;
     }
     else {
-        port = 443;
+        port = ssl ? 443 : 80;
     }
 
     if (objc > 0) {
