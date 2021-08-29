@@ -103,7 +103,9 @@ void WebsocketClient::add_input(void* in, int len)
     // newline, since [gets] reads all characters up to the first newline it finds. If
     // there is no newline, [gets] will hang in an endless loop.
     // For binary data nothing must be appended.
-    data.push_back('\n');
+    if (m_transmission == WsTransmission::TEXT) {
+        data.push_back('\n');
+    }
     m_cond_input.notify_one();
 }
 

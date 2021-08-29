@@ -14,7 +14,6 @@ interp alias {} ::ws::echo::puts {} ::ws::puts
 
 
 proc ::ws::echo::handle {sock type message} {
-    puts wwwwww,$type
     try {
         switch -glob -- $type {
             connect {
@@ -24,8 +23,8 @@ proc ::ws::echo::handle {sock type message} {
                 websocket::send $sock text [string trimr $message]
             }
             binary {
-                puts "Received binary data with size [string length $message] on sock $sock"
-                websocket::send $sock text [sha2::sha256 -hex -- $message]
+                puts "Received binary data with length [string len $message] on sock $sock"
+                websocket::send $sock binary $message
             }
             disconnect {
                 puts "disconnected $sock"

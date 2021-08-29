@@ -76,10 +76,10 @@ tcltest::test text-buffer-small "buffer is smaller than text" -setup $connectEch
 } -cleanup $closeSock -result [list 22 [string repeat + 22]] -constraints knownBug
 
 tcltest::test binary-normal "binary IO works" -setup [concat $connectEcho \; $loadGif] -body {
-    fconfigure $sock -translation auto -encoding binary -transmission binary
-    puts -nonewline $sock $data
+    fconfigure $sock -translation binary -transmission binary
+    set toSend [encoding convertto utf-8 $data]
+    puts -nonewline $sock $toSend
     flush $sock
-    #gets $sock
-} -cleanup [list $closeSock ; unset -nocomplain data] \
-    -result 4e0ed6f6ed05e003ee0c0eb4cc895ae4dec3871d576aad96bb66fc8f98eb6638 \
-    -constraints knownBug
+    set echo [read $sock [string len $toSend]]
+    string eq [encoding convertfrom utf-8 $echo] $data
+} -cleanup [list $closeSock ; unset -nocomplain data] -result 1
