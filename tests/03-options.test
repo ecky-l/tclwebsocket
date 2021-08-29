@@ -43,3 +43,8 @@ tcltest::test configure-transmission "configure the transmission" -setup $connec
     lappend res [fconfigure $sock -transmission]
 } -cleanup [list $closeSock ; unset -nocomplain res ] -result {text binary text}
 
+tcltest::test configure-transmission-binary "when transmission is set to binary, this includes -translation binary" \
+  -setup $connectEcho -body {
+   fconfigure $sock -transmission binary
+   dict filter [fconfigure $sock] key -encoding -translation -transmission
+} -cleanup $closeSock -result {-encoding binary -translation {lf lf} -transmission binary}

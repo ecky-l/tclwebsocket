@@ -76,7 +76,7 @@ tcltest::test text-buffer-small "buffer is smaller than text" -setup $connectEch
 } -cleanup $closeSock -result [list 22 [string repeat + 22]] -constraints knownBug
 
 tcltest::test binary-normal "binary IO works" -setup [concat $connectEcho \; $loadGif] -body {
-    fconfigure $sock -translation binary -transmission binary
+    fconfigure $sock -transmission binary
     set toSend [encoding convertto utf-8 $data]
     puts -nonewline $sock $toSend
     flush $sock

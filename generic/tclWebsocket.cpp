@@ -82,6 +82,11 @@ void WebsocketClient::unregister_channel(Tcl_Interp* interp) const
     }
 }
 
+int WebsocketClient::set_channel_option(Tcl_Interp* interp, const char* option, const char* value) const
+{
+    return Tcl_SetChannelOption(interp, m_channel, option, value);
+}
+
 void WebsocketClient::shutdown()
 {
     m_lwsClient.reset_wsi();

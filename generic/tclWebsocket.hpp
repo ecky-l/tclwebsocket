@@ -38,6 +38,7 @@ public:
 
     void register_channel(Tcl_Interp* interp) const;
     void unregister_channel(Tcl_Interp* interp) const;
+    int set_channel_option(Tcl_Interp* interp, const char* option, const char* value) const;
 
     //! called from the lws callback when a LWS_CALLBACK_*_CLOSED event occurs
     void shutdown();

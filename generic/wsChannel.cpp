@@ -33,6 +33,8 @@ int WebsocketSetOptionProc(ClientData instanceData, Tcl_Interp* interp, const ch
         size_t strLen = strlen(value);
         if (std::string("binary").compare(0, strLen, value, strLen) == 0) {
             wsPtr->set_transmission(WsTransmission::BINARY);
+            // set -translation to binary also, which includes -encoding
+            wsPtr->set_channel_option(interp, "-translation", "binary");
         }
         else if (std::string("text").compare(0, strLen, value, strLen) == 0) {
             wsPtr->set_transmission(WsTransmission::TEXT);
