@@ -7,6 +7,14 @@ set PWD [file dirname [info script]]
 
 proc start-tclhttpd-thread {} {
     global PWD env
+
+    # if tclhttpd runs already, do nothing
+    if {![catch {socket localhost 8015} sock]} {
+        close $sock
+        puts "Tclhttpd already running!"
+        return
+    }
+
     if {![info exists env(TCLHTTPD_HOME)]} {
         throw {START_TCLHTTPD THREAD} "Cannot start tclhttpd, the TCLHTTPD_HOME variable is not set!"
     }
@@ -33,7 +41,9 @@ proc start-tclhttpd-thread {} {
 }
 
 proc stop-tclhttpd-thread {tid} {
-    thread::send $tid {set forever now}
+    if {$tid != {}} {
+        thread::send $tid {set forever now}
+    }
 }
 
 proc start-tclhttpd {} {
