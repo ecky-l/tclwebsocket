@@ -773,7 +773,11 @@ proc ::websocket::send { sock type {msg ""} {final 1}} {
     if { [string is false $Connection(server)] } {
 	set mask [expr {int(rand()*(1<<32))}]
 	append header [binary format Iu $mask]
-	set msg [Mask $mask $msg]
+        set m {}
+        for {set i 0} {$i < 4} {incr i} {
+            append m [binary format cu [expr {$mask >> (24 - 8 * $i)}]]
+        }
+        set msg [Mask $m $msg]
     }
 
     # Send the (masked) frame
@@ -814,25 +818,17 @@ proc ::websocket::send { sock type {msg ""} {final 1}} {
 proc ::websocket::Mask { mask dta } {
     variable WS
     variable log
+    # Format data as a list of 8-bit integer bytes.  Then unmask and return the data
+    binary scan $dta c* bytes
 
-    # Format data as a list of 32-bit integer
-    # words and list of 8-bit integer byte leftovers.  Then unmask
-    # data, recombine the words and bytes, and return
-    binary scan $dta I*c* words bytes
-
-    set masked_words {}
-    set masked_bytes {}
-    for {set i 0} {$i < [llength $words]} {incr i} {
-	lappend masked_words [expr {[lindex $words $i] ^ $mask}]
-    }
+    set masked {}
     for {set i 0} {$i < [llength $bytes]} {incr i} {
-	lappend masked_bytes [expr {[lindex $bytes $i] ^
-				    ($mask >> (24 - 8 * $i))}]
+        set m [lindex $mask [expr {$i & 3}]]
+        lappend masked [expr {[lindex $bytes $i] ^ $m}]
     }
 
-    return [binary format I*c* $masked_words $masked_bytes]
+    binary format c* $masked
 }
-
 
 # ::websocket::Receiver -- Receive (framed) data from WebSocket
 #
@@ -946,7 +942,8 @@ proc ::websocket::Receiver { sock } {
 	    close $sock 1001
 	    return
 	}
-	binary scan $dta Iu mask
+        binary scan $dta cu4 mask
+
 	if { [catch {read $sock $len} bytes] } {
 	    ${log}::error "Cannot read fragment content from socket: $bytes"
 	    close $sock 1001
